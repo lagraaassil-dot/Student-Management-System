@@ -4,15 +4,15 @@ public class Module {
 private int idModule;
 private String nomModule;
 private int coefficient;
-private int VolumeHoraire;//in minutes
+private int VolumeHoraire;   //in minutes
 
-// Constructor
-public Module(int idModule, String nomModule, int coefficient, int volumeHoraire) {
-    this.idModule = idModule;
-    this.nomModule = nomModule;
-    this.coefficient = coefficient;
-    this.VolumeHoraire = volumeHoraire;
-}
+
+    public Module(String nomModule, int coefficient, int volumeHoraire) {
+        this.nomModule = nomModule;
+        this.coefficient = coefficient;
+        this.VolumeHoraire = volumeHoraire;
+        //function to generate ID
+    }
 
 // Getters
 public int getIdModule() { return idModule; }

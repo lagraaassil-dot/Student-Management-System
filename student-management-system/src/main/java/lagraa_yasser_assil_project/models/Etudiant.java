@@ -12,15 +12,19 @@ public class Etudiant {
     private Note[] notes; // Array to hold the student's grades, can be initialized later when modules are assigned
 
 
-    // Constructor
-        public Etudiant(int idEtudiant, String nom, String prenom, Date dateNaissance, String email, Note[] notes) {
-        this.idEtudiant = idCounter; // Assign unique ID and increment counter
-        idCounter++;
+    public Etudiant( String nom, String prenom, Date dateNaissance, String email, Note[] notes) {
+
         this.nom = nom;
         this.prenom = prenom;
         this.dateNaissance = dateNaissance;
         this.email = email;
         this.notes = notes;
+
+        /* function to generate ID
+        assign findALL() to a list
+        sort()
+        find last element<- +1
+         */
     }
     public Etudiant(int idEtudiant, String nom, String prenom, Date dateNaissance, String email) {
         this.idEtudiant = idCounter; // Assign unique ID and increment counter
