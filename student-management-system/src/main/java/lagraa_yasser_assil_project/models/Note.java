@@ -9,7 +9,7 @@ public class Note {
     private int TypeNote; // 0 for continuous assessment, 1 for exam, 2 for rattrapage
     private boolean Session; // true for normal session, false for rattrapage
 
-    public Note(int idEtudiant, int idModule, double valeur, int TypeNote, boolean Session) {
+    public Note(int idEtudiant, int idModul e, double valeur, int TypeNote, boolean Session) {
         this.idNote = idCounter; // Assign unique ID and increment counter
         idCounter++;
         this.idEtudiant = idEtudiant;
