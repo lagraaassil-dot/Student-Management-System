@@ -19,6 +19,6 @@ public Specialite getSpecialite() {return specialite; }
 
 // Setters
 public void setNom(String nom) { this.nom = nom; }
-public void setSpecialite(Specialite specialite) { if(this.specialite == null) { this.specialite = specialite; } }
+public void setSpecialite(Specialite specialite) { this.specialite = specialite;  }
 
 }

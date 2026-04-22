@@ -9,7 +9,7 @@ import lagraa_yasser_assil_project.utils.DBConnection;
 public class App {
     public static void main(String[] args) {
         // 1. Create a dummy Etudiant object
-        Etudiant testStudent = new Etudiant(4, "Zyad", "Assil", null, "test2@usthb.dz");
+        Etudiant testStudent = new Etudiant( "Zyad", "Assil", null, "test2@usthb.dz");
 
         // 2. Try to connect and insert into the DB
         String query = "INSERT INTO ETUDIANT (idEtudiant, nom, prenom, email) VALUES (?, ?, ?, ?)";

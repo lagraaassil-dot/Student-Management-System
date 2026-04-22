@@ -2,43 +2,26 @@ package lagraa_yasser_assil_project.models;
 
 public class Note {
     private static int idCounter = 1; // Static counter to generate unique IDs
-    private final int idNote;
-    private final int idEtudiant;
-    private final int idModule;
+    private  Integer idNote;
     private double valeur;
     private int TypeNote; // 0 for continuous assessment, 1 for exam, 2 for rattrapage
     private boolean Session; // true for normal session, false for rattrapage
+    private Enrolments enrolment; // Association with Enrolments class
 
-    public Note(int idEtudiant, int idModule, double valeur, int TypeNote, boolean Session) {
-        this.idNote = idCounter; // Assign unique ID and increment counter
-        idCounter++;
-        this.idEtudiant = idEtudiant;
-        this.idModule = idModule;
+    public Note( double valeur, int TypeNote, boolean Session, Enrolments enrolment) {
+        this.idNote = null; // ID will be set by the database
         this.valeur = valeur;
         this.TypeNote = TypeNote;
         this.Session = Session;
+        this.enrolment = enrolment;
     }
-        public Note(int idEtudiant, int idModule, double valeur, int TypeNote) {
-        this.idNote = idCounter; // Assign unique ID and increment counter
-        idCounter++;
-        this.idEtudiant = idEtudiant;
-        this.idModule = idModule;
-        this.valeur = valeur;
-        this.TypeNote = TypeNote;
-        this.Session = true; // Default to normal session
-    }
+
 //getters
-public int getiIdEtudiant(){
-    return idEtudiant;
-}
-public int getiIdModule(){
-    return idModule;
-}
-public double getId(){
+public Integer getIdNote() {
     return idNote;
 }
-public int getValeur() {
-        return (int) valeur;
+public double getValeur() {
+        return valeur;
 }
 public int getTypeNote() {
         return TypeNote;
@@ -46,6 +29,9 @@ public int getTypeNote() {
 public boolean isSession() {
         return Session;
     }
+public Enrolments getEnrolment() {
+        return enrolment;
+    }    
 //setters
     public void setValeur(double valeur) {
         if (valeur >= 0 && valeur <= 20) {
@@ -55,16 +41,30 @@ public boolean isSession() {
         }
     }
     public void setTypeNote(int TypeNote) {
-        if (TypeNote == 1 || TypeNote == 2 || TypeNote == 3) {
+        if (TypeNote == 0 || TypeNote == 1 || TypeNote == 2) {
             this.TypeNote = TypeNote;
+            setTypeSession(TypeNote); // Update the session type based on the note type
         } else {
-            throw new IllegalArgumentException("Le type de note doit être 1 (exam), 2 (continuous assessment) ou 3 (rattrapage).");
+            throw new IllegalArgumentException("Le type de note doit être 0 (continuous assessment), 1 (exam) ou 2 (rattrapage).");
         }
-    }    
-
-    public void setSession(boolean Session) {
-        this.Session = Session;
+    } 
+    public void setEnrolment(Enrolments enrolment) {
+        this.enrolment = enrolment;
+    }   
+    public void setIdNote(Integer idNote) {
+        if (this.idNote == null) {this.idNote = idNote;}
     }
+
+    private void setTypeSession(int TypeNote) {
+        if (TypeNote == 0 || TypeNote == 1) {
+            this.Session = true;
+        } else if (TypeNote == 2) {
+            this.Session = false;
+        } else {
+            throw new IllegalArgumentException("Le type de note doit être 0 (continuous assessment), 1 (exam) ou 2 (rattrapage).");
+        }
+    }
+
         
 }
 
