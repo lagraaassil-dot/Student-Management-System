@@ -1,7 +1,6 @@
 package lagraa_yasser_assil_project.models;
 
 public class Note {
-    private static int idCounter = 1; // Static counter to generate unique IDs
     private  Integer idNote;
     private double valeur;
     private int TypeNote; // 0 for continuous assessment, 1 for exam, 2 for rattrapage
