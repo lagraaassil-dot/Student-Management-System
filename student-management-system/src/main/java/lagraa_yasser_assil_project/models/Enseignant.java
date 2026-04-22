@@ -2,15 +2,18 @@ package lagraa_yasser_assil_project.models;
 import lagraa_yasser_assil_project.Enums.*;
 
 public class Enseignant {
-private int idEnseignant;
+
+private int final idEnseignant;
 private String nom;
 private Specialite specialite;
 
-// Constructor
-public Enseignant(int idEnseignant, String nom, Specialite specialite) {
-    this.idEnseignant = idEnseignant; //PK so no setter for this field 
+
+public Enseignant( String nom, Specialite specialite) {
+
     this.nom = nom;
-    this.specialite = specialite;}
+    this.specialite = specialite;
+    //function to generate ID
+}
 
 // Getters
 public int getIdEnseignant() {return idEnseignant; }   
