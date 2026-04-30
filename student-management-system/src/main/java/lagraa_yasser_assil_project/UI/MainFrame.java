@@ -146,9 +146,5 @@ public class MainFrame extends JFrame {
         UIManager.put("PasswordField.foreground",      TEXT_PRIMARY);
     }
 
-    // ── Entry point ───────────────────────────────────────────────────────────
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(MainFrame::new);
-    }
 }

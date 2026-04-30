@@ -347,7 +347,7 @@ public class ModulePanel extends JPanel {
             if (ok) {
                 // Recheck diploma for all affected students
                 for (Etudiant stu : affectedStudents) {
-                    etudiantDAO.checkAndSetDiploma(stu.getIdEtudiant());
+                    etudiantDAO.checkAndSetDiploma(stu);
                 }
                 showSuccess("Module supprimé.");
                 if (controller != null)
@@ -435,7 +435,7 @@ public class ModulePanel extends JPanel {
             modVhField.setText(String.valueOf(selectedModule.getVolumeHoraire()));
             modTeacherDropdown.setItems(enseignantDAO.getAllEnseignants());
             if (selectedModule.getEnseignant() != null)
-                modTeacherDropdown.selectItem(selectedModule.getEnseignant());
+                 modTeacherDropdown.setSelectedItem(selectedModule.getEnseignant());
             ((CardLayout)outer.getLayout()).show(outer, "FORM");
         });
 

@@ -375,9 +375,9 @@ public class StudentPanel extends JPanel {
 
         JPanel selectSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 4));
         selectSouth.setOpaque(false);
-        selectSouth.add(makeSecondaryButton("Annuler") {{
-            addActionListener(ev -> reset());
-        }});
+        JButton cancelBtn = makeSecondaryButton("Annuler");
+        cancelBtn.addActionListener(ev -> reset());
+        selectSouth.add(cancelBtn);
         selectSouth.add(nextBtn);
         selectCard.add(modifyDropdown, BorderLayout.CENTER);
         selectCard.add(selectSouth, BorderLayout.SOUTH);

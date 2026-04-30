@@ -185,6 +185,21 @@ public class SearchableDropdown<T> extends JPanel {
         filter();
     }
 
+    /** Manually sets the selected item and refreshes the UI selection. */
+public void setSelectedItem(T item) {
+    this.selectedItem = item;
+    if (item == null) {
+        jList.clearSelection();
+    } else {
+        // Find the index in the current filtered list to highlight it in the JList
+        int index = filtered.indexOf(item);
+        if (index != -1) {
+            jList.setSelectedIndex(index);
+            jList.ensureIndexIsVisible(index);
+        }
+    }
+}
+
     // ── Filtering ─────────────────────────────────────────────────────────────
 
     private void filter() {
