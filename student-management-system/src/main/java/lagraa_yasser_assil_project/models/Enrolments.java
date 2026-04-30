@@ -5,21 +5,19 @@ private Integer idEnrolment;
 private Etudiant etudiant;
 private Module module;
 private Date dateInscription;
-Boolean IsValidated; //null if not taken any exam true if validated false if not -> flagged as eligible for tatrapage
+private Boolean IsValidated; //null if not taken any exam true if validated false if not -> flagged as eligible for tatrapage
 //Constructor
 public Enrolments(Etudiant etudiant,Module module,boolean IsValidated){
 this.etudiant=etudiant;
 this.module=module;
 this.IsValidated=IsValidated;
-this.idEnrolment=null;
+
 this.dateInscription=new Date();
 }
 
 public Enrolments(Etudiant etudiant,Module module){
 this.etudiant=etudiant;
 this.module=module;
-this.IsValidated=null;
-this.idEnrolment=null;
 this.dateInscription=new Date();
 }
 
@@ -30,7 +28,7 @@ public Module getModule() { return module; }
 public Date getDateInscription() { return dateInscription; }
 public Boolean getIsValidated() { return IsValidated; }
 //setters
-public void setIdEnrolment(Integer idEnrolment) { if (this.idEnrolment==null)this.idEnrolment = idEnrolment; }
+public void setIdEnrolment(Integer idEnrolment) { this.idEnrolment = idEnrolment; }
 public void setEtudiant(Etudiant etudiant) { this.etudiant = etudiant; }
 public void setModule(Module module) { this.module = module; }
 public void setDateInscription(Date dateInscription) { this.dateInscription = dateInscription; }

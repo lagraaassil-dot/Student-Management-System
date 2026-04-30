@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    // We only need one URL variable
+
     private static final String URL = "jdbc:sqlserver://localhost;databaseName=GestionEtudiants;encrypt=true;trustServerCertificate=true;";
     private static final String USER = "YasserAssil_admin"; 
     private static final String PASS = "INFO2A"; 

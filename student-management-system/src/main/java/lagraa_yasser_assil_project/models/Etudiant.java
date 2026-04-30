@@ -13,8 +13,7 @@ public class Etudiant {
 
 
     // Constructor
-        public Etudiant( String nom, String prenom, Date dateNaissance, String email) {  
-        idEtudiant=null;     
+        public Etudiant( String nom, String prenom, Date dateNaissance, String email) {      
         this.nom = nom;
         this.prenom = prenom;
         this.dateNaissance = dateNaissance;
@@ -33,7 +32,7 @@ public class Etudiant {
 
 
     // Setters
-    public void setId(Integer id){if (this.idEtudiant==null)this.idEtudiant=id;}
+    public void setId(Integer id){this.idEtudiant=id;}
     public void setNom(String nom) { this.nom = nom; }
     public void setPrenom(String prenom) { this.prenom = prenom; }
     public void setDateNaissance(Date dateNaissance) { this.dateNaissance = dateNaissance; }
