@@ -1,10 +1,12 @@
 package lagraa_yasser_assil_project.UI;
-
+import javax.swing.plaf.FontUIResource;
 import lagraa_yasser_assil_project.UI.components.NavigationPanel;
 import lagraa_yasser_assil_project.UI.components.ContentPanel;
 import lagraa_yasser_assil_project.UI.components.NavigationController;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
+
 import java.awt.*;
 
 /**
@@ -98,53 +100,64 @@ public class MainFrame extends JFrame {
 
     // ── Global Swing defaults ─────────────────────────────────────────────────
 
-    private void applyGlobalUI() {
-        UIManager.put("Panel.background",              BG_PANEL);
-        UIManager.put("Label.foreground",              TEXT_PRIMARY);
-        UIManager.put("Label.font",                    FONT_BODY);
-        UIManager.put("TextField.background",          BG_CARD);
-        UIManager.put("TextField.foreground",          TEXT_PRIMARY);
-        UIManager.put("TextField.caretForeground",     ACCENT_GOLD);
-        UIManager.put("TextField.border",
-                BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(BORDER_SUBTLE),
-                    BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-        UIManager.put("ComboBox.background",           BG_CARD);
-        UIManager.put("ComboBox.foreground",           TEXT_PRIMARY);
-        UIManager.put("ComboBox.selectionBackground",  NAV_SELECT);
-        UIManager.put("ComboBox.selectionForeground",  TEXT_PRIMARY);
-        UIManager.put("Table.background",              BG_CARD);
-        UIManager.put("Table.foreground",              TEXT_PRIMARY);
-        UIManager.put("Table.gridColor",               BORDER_SUBTLE);
-        UIManager.put("Table.selectionBackground",     NAV_SELECT);
-        UIManager.put("Table.selectionForeground",     TEXT_PRIMARY);
-        UIManager.put("TableHeader.background",        BG_PANEL);
-        UIManager.put("TableHeader.foreground",        ACCENT_GOLD);
-        UIManager.put("ScrollPane.background",         BG_PANEL);
-        UIManager.put("Viewport.background",           BG_CARD);
-        UIManager.put("ScrollBar.background",          BG_PANEL);
-        UIManager.put("ScrollBar.thumb",               BORDER_SUBTLE);
-        UIManager.put("OptionPane.background",         BG_PANEL);
-        UIManager.put("OptionPane.messageForeground",  TEXT_PRIMARY);
-        UIManager.put("Button.background",             NAV_SELECT);
-        UIManager.put("Button.foreground",             TEXT_PRIMARY);
-        UIManager.put("Button.border",
-                BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(BORDER_SUBTLE),
-                    BorderFactory.createEmptyBorder(6, 16, 6, 16)));
-        UIManager.put("CheckBox.background",           BG_PANEL);
-        UIManager.put("CheckBox.foreground",           TEXT_PRIMARY);
-        UIManager.put("RadioButton.background",        BG_PANEL);
-        UIManager.put("RadioButton.foreground",        TEXT_PRIMARY);
-        UIManager.put("Spinner.background",            BG_CARD);
-        UIManager.put("Spinner.foreground",            TEXT_PRIMARY);
-        UIManager.put("List.background",               BG_CARD);
-        UIManager.put("List.foreground",               TEXT_PRIMARY);
-        UIManager.put("List.selectionBackground",      NAV_SELECT);
-        UIManager.put("List.selectionForeground",      TEXT_PRIMARY);
-        UIManager.put("PasswordField.background",      BG_CARD);
-        UIManager.put("PasswordField.foreground",      TEXT_PRIMARY);
-    }
+private void applyGlobalUI() {
+    FontUIResource dialogFont = new FontUIResource("Segoe UI Emoji", Font.PLAIN, 13);
+
+    UIManager.put("Panel.background",              BG_PANEL);
+    UIManager.put("Label.foreground",              TEXT_PRIMARY);
+    UIManager.put("Label.font",                    dialogFont);        // changed
+    UIManager.put("TextField.background",          BG_CARD);
+    UIManager.put("TextField.foreground",          TEXT_PRIMARY);
+    UIManager.put("TextField.font",                dialogFont);        // added
+    UIManager.put("TextField.caretForeground",     ACCENT_GOLD);
+    UIManager.put("TextField.border",
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_SUBTLE),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+    UIManager.put("ComboBox.background",           BG_CARD);
+    UIManager.put("ComboBox.foreground",           TEXT_PRIMARY);
+    UIManager.put("ComboBox.font",                 dialogFont);        // added
+    UIManager.put("ComboBox.selectionBackground",  NAV_SELECT);
+    UIManager.put("ComboBox.selectionForeground",  TEXT_PRIMARY);
+    UIManager.put("Table.background",              BG_CARD);
+    UIManager.put("Table.foreground",              TEXT_PRIMARY);
+    UIManager.put("Table.font",                    dialogFont);        // added
+    UIManager.put("Table.gridColor",               BORDER_SUBTLE);
+    UIManager.put("Table.selectionBackground",     NAV_SELECT);
+    UIManager.put("Table.selectionForeground",     TEXT_PRIMARY);
+    UIManager.put("TableHeader.background",        BG_PANEL);
+    UIManager.put("TableHeader.foreground",        ACCENT_GOLD);
+    UIManager.put("TableHeader.font",              dialogFont);        // added
+    UIManager.put("ScrollPane.background",         BG_PANEL);
+    UIManager.put("Viewport.background",           BG_CARD);
+    UIManager.put("ScrollBar.background",          BG_PANEL);
+    UIManager.put("ScrollBar.thumb",               BORDER_SUBTLE);
+    UIManager.put("OptionPane.background",         BG_PANEL);
+    UIManager.put("OptionPane.messageForeground",  TEXT_PRIMARY);
+    UIManager.put("Button.background",             NAV_SELECT);
+    UIManager.put("Button.foreground",             TEXT_PRIMARY);
+    UIManager.put("Button.font",                   dialogFont);        // added
+    UIManager.put("Button.border",
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_SUBTLE),
+                BorderFactory.createEmptyBorder(6, 16, 6, 16)));
+    UIManager.put("CheckBox.background",           BG_PANEL);
+    UIManager.put("CheckBox.foreground",           TEXT_PRIMARY);
+    UIManager.put("CheckBox.font",                 dialogFont);        // added
+    UIManager.put("RadioButton.background",        BG_PANEL);
+    UIManager.put("RadioButton.foreground",        TEXT_PRIMARY);
+    UIManager.put("RadioButton.font",              dialogFont);        // added
+    UIManager.put("Spinner.background",            BG_CARD);
+    UIManager.put("Spinner.foreground",            TEXT_PRIMARY);
+    UIManager.put("List.background",               BG_CARD);
+    UIManager.put("List.foreground",               TEXT_PRIMARY);
+    UIManager.put("List.font",                     dialogFont);        // added
+    UIManager.put("List.selectionBackground",      NAV_SELECT);
+    UIManager.put("List.selectionForeground",      TEXT_PRIMARY);
+    UIManager.put("PasswordField.background",      BG_CARD);
+    UIManager.put("PasswordField.foreground",      TEXT_PRIMARY);
+    UIManager.put("PasswordField.font",            dialogFont);        // added
+}
 
 
 }
