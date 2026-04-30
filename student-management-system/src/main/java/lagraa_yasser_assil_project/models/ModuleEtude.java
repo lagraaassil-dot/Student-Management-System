@@ -1,6 +1,6 @@
 package lagraa_yasser_assil_project.models;
 
-public class Module {
+public class ModuleEtude {
 private Integer idModule;
 private String nomModule;
 private int coefficient;
@@ -8,7 +8,7 @@ private int VolumeHoraire;//in minutes
 private Enseignant enseignant;
 
 // Constructor
-public Module( String nomModule, int coefficient, int volumeHoraire, Enseignant enseignant) {
+public ModuleEtude( String nomModule, int coefficient, int volumeHoraire, Enseignant enseignant) {
     this.idModule = null; // ID will be set by the database
     this.nomModule = nomModule;
     this.coefficient = coefficient;
@@ -16,7 +16,7 @@ public Module( String nomModule, int coefficient, int volumeHoraire, Enseignant 
     this.enseignant = enseignant;
 }
 
-public Module( String nomModule, int coefficient, int volumeHoraire) {
+public ModuleEtude( String nomModule, int coefficient, int volumeHoraire) {
     this.idModule = null; // ID will be set by the database
     this.nomModule = nomModule;
     this.coefficient = coefficient;

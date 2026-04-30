@@ -4,9 +4,9 @@ public class Note {
     private  Integer idNote;
     private double valeur;
     private int TypeNote; // 0 for continuous assessment, 1 for exam, 2 for rattrapage
-    private Enrolments enrolment; // Association with Enrolments class
+    private Inscription enrolment; // Association with Inscription class
 
-    public Note( double valeur, int TypeNote, boolean Session, Enrolments enrolment) {
+    public Note( double valeur, int TypeNote, boolean Session, Inscription enrolment) {
         this.valeur = valeur;
         this.TypeNote = TypeNote;
         this.enrolment = enrolment;
@@ -22,7 +22,7 @@ public double getValeur() {
 public int getTypeNote() {
         return TypeNote;
     }
-public Enrolments getEnrolment() {
+public Inscription getEnrolment() {
         return enrolment;
     }    
 //setters
@@ -40,7 +40,7 @@ public Enrolments getEnrolment() {
             throw new IllegalArgumentException("Le type de note doit être 0 (continuous assessment), 1 (exam) ou 2 (rattrapage).");
         }
     } 
-    public void setEnrolment(Enrolments enrolment) {
+    public void setEnrolment(Inscription enrolment) {
         this.enrolment = enrolment;
     }   
     public void setIdNote(Integer idNote) {
