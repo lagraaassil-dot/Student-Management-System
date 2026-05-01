@@ -71,7 +71,7 @@ public class NavigationPanel extends JPanel {
         strip.setBorder(BorderFactory.createEmptyBorder(20, 16, 16, 16));
         strip.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel logo = new JLabel("◈");
+        JLabel logo = new JLabel("♦");
         logo.setFont(new Font("Courier New", Font.BOLD, 28));
         logo.setForeground(MainFrame.ACCENT_GOLD);
         strip.add(logo);

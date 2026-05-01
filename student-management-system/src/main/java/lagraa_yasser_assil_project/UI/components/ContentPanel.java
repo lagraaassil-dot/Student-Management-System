@@ -88,7 +88,7 @@ public class ContentPanel extends JPanel {
         JPanel welcome = new JPanel(new GridBagLayout());
         welcome.setBackground(MainFrame.BG_PANEL);
 
-        JLabel icon = new JLabel("◈");
+        JLabel icon = new JLabel("♦");
         icon.setFont(new Font("Courier New", Font.BOLD, 64));
         icon.setForeground(new Color(0x25, 0x3B, 0x5C));
 

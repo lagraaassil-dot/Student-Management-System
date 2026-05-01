@@ -138,11 +138,19 @@ public class EnseignantDAO {
 
     // ------------------------------------------------------------------ HELPER
 
-    /** Maps the current ResultSet row to an Enseignant object. */
-    private Enseignant mapRow(ResultSet rs) throws SQLException {
-        Specialite spec = Specialite.valueOf(rs.getString("specialite"));
-        Enseignant e = new Enseignant(rs.getString("nom"), spec);
-        e.setIdEnseignant(rs.getInt("idEnseignant"));
-        return e;
+private Enseignant mapRow(ResultSet rs) throws SQLException {
+    String specStr = rs.getString("specialite");
+    Specialite spec = null;
+    if (specStr != null) {
+        try {
+            spec = Specialite.valueOf(specStr);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Unknown specialite value in DB: " + specStr);
+            // spec stays null — handle gracefully downstream
+        }
     }
+    Enseignant e = new Enseignant(rs.getString("nom"), spec);
+    e.setIdEnseignant(rs.getInt("idEnseignant"));
+    return e;
+}
 }

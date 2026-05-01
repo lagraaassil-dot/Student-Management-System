@@ -97,28 +97,39 @@ public class NoteDAO {
      * Returns all notes for all enrollments of a student —
      * useful for a full grade report view.
      */
-    public List<Note> getNotesByStudent(int studentId) {
-        List<Note> list = new ArrayList<>();
-        String sql = "SELECT n.idNote, n.valeur, n.typeNote, n.idInscription "
-                   + "FROM NOTE n "
-                   + "JOIN INSCRIPTION i ON n.idInscription = i.idInscription "
-                   + "WHERE i.idEtudiant = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+  public List<Note> getNotesByStudent(int studentId) {
+    List<Note> list = new ArrayList<>();
+    String sql = "SELECT n.idNote, n.valeur, n.typeNote, n.idInscription "
+               + "FROM NOTE n "
+               + "JOIN INSCRIPTION i ON n.idInscription = i.idInscription "
+               + "WHERE i.idEtudiant = ?";
 
-            ps.setInt(1, studentId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    int insId = rs.getInt("idInscription");
-                    Inscription inscription = inscriptionDAO.getInscriptionById(insId);
-                    list.add(mapRow(rs, inscription));
-                }
+    // Step 1: collect raw data while ResultSet is open
+    List<int[]> rows = new ArrayList<>(); // [idNote, typeNote, idInscription], valeur separate
+    List<Double> valeurs = new ArrayList<>();
+    
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, studentId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                rows.add(new int[]{ rs.getInt("idNote"), rs.getInt("typeNote"), rs.getInt("idInscription") });
+                valeurs.add(rs.getDouble("valeur"));
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
         }
-        return list;
+    } catch (SQLException ex) { ex.printStackTrace(); return list; }
+
+    // Step 2: now safely fetch sub-objects
+    for (int i = 0; i < rows.size(); i++) {
+        int[] r = rows.get(i);
+        Inscription inscription = inscriptionDAO.getInscriptionById(r[2]);
+        int typeNote = r[1];
+        Note n = new Note(valeurs.get(i), typeNote, typeNote == 2, inscription);
+        n.setIdNote(r[0]);
+        list.add(n);
     }
+    return list;
+}
 
     /**
      * Returns the note value for a specific type in an enrollment,

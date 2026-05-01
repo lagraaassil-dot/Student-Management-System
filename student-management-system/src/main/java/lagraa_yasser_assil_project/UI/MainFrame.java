@@ -85,7 +85,7 @@ public class MainFrame extends JFrame {
         bar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER_SUBTLE));
         bar.setPreferredSize(new Dimension(0, 48));
 
-        JLabel title = new JLabel("  [*] SYSTEME DE GESTION ACADEMIQUE");
+        JLabel title = new JLabel(" ♦ SYSTEME DE GESTION ACADEMIQUE");
         title.setFont(FONT_DISPLAY);
         title.setForeground(ACCENT_GOLD);
         bar.add(title, BorderLayout.WEST);
@@ -101,7 +101,7 @@ public class MainFrame extends JFrame {
     // ── Global Swing defaults ─────────────────────────────────────────────────
 
 private void applyGlobalUI() {
-    FontUIResource dialogFont = new FontUIResource("Segoe UI Emoji", Font.PLAIN, 13);
+    FontUIResource dialogFont = new FontUIResource("Segoe UI", Font.PLAIN, 13);
 
     UIManager.put("Panel.background",              BG_PANEL);
     UIManager.put("Label.foreground",              TEXT_PRIMARY);

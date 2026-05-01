@@ -164,40 +164,42 @@ public class ModulePanel extends JPanel {
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
         phase1.add(errLbl1, gbc);
 
-        JPanel btns1 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
-        btns1.setOpaque(false);
-        JButton cancel1 = makeSecondaryButton("Annuler");
-        JButton next1   = makePrimaryButton("Suivant : Assigner un prof →");
-        JButton skip1   = makeSecondaryButton("Ignorer (pas de prof)");
-        cancel1.addActionListener(e -> reset());
+        // Declare teachDropRef BEFORE the button listeners that reference it
+        @SuppressWarnings("unchecked")
+        SearchableDropdown<Enseignant>[] teachDropRef = new SearchableDropdown[1];
+        teachDropRef[0] = new SearchableDropdown<>(
+            List.of(),
+            t -> t.getNom() + "  [" + t.getSpecialite() + "]",
+            t -> String.valueOf(t.getIdEnseignant())
+        );
 
-        // store validated fields in outer client props
-        ActionListener validateAndProceed = e -> {
+        // Shared validation helper — stores results in client properties, returns true on success
+        java.util.function.BooleanSupplier[] validateRef = new java.util.function.BooleanSupplier[1];
+        validateRef[0] = () -> {
             errLbl1.setText(" ");
+            outer.putClientProperty("nom", null); // reset so callers detect failure
             String nom = nomField.getText().trim();
-            if (!UIValidator.notBlank(nom)) { errLbl1.setText("Le nom est requis."); return; }
-            if (!UIValidator.isPositiveInt(coeffField.getText())) { errLbl1.setText("Coefficient invalide (entier > 0)."); return; }
-            if (!UIValidator.isValidVolumeHoraire(vhField.getText())) { errLbl1.setText("Volume horaire invalide (0-1440)."); return; }
+            if (!UIValidator.notBlank(nom))                   { errLbl1.setText("Le nom est requis."); return false; }
+            if (!UIValidator.isPositiveInt(coeffField.getText()))      { errLbl1.setText("Coefficient invalide (entier > 0)."); return false; }
+            if (!UIValidator.isValidVolumeHoraire(vhField.getText()))  { errLbl1.setText("Volume horaire invalide (0-1440)."); return false; }
             outer.putClientProperty("nom",   nom);
             outer.putClientProperty("coeff", Integer.parseInt(coeffField.getText().trim()));
             outer.putClientProperty("vh",    Integer.parseInt(vhField.getText().trim()));
+            return true;
         };
 
-        next1.addActionListener(e -> {
-            validateAndProceed.actionPerformed(e);
-            if (outer.getClientProperty("nom") == null) return;
-            // Refresh teacher dropdown for phase2
-            ((CardLayout)outer.getLayout()).show(outer, "PHASE2");
-        });
+        JButton cancel1 = makeSecondaryButton("Annuler");
+        cancel1.addActionListener(e -> reset());
 
+        // "Skip" — create module without a teacher
+        JButton skip1 = makeSecondaryButton("Créer sans enseignant");
+        skip1.setForeground(MainFrame.ACCENT_GOLD);
         skip1.addActionListener(e -> {
-            validateAndProceed.actionPerformed(e);
-            if (outer.getClientProperty("nom") == null) return;
-            // Create module without teacher
+            if (!validateRef[0].getAsBoolean()) return;
             ModuleEtude m = new ModuleEtude(
                 (String) outer.getClientProperty("nom"),
-                (int) outer.getClientProperty("coeff"),
-                (int) outer.getClientProperty("vh")
+                (int)    outer.getClientProperty("coeff"),
+                (int)    outer.getClientProperty("vh")
             );
             boolean ok = moduleDAO.addModule(m);
             if (ok) {
@@ -212,7 +214,28 @@ public class ModulePanel extends JPanel {
             }
         });
 
-        btns1.add(cancel1); btns1.add(skip1); btns1.add(next1);
+        // "Next" — proceed to teacher assignment phase
+        JButton next1 = makePrimaryButton("Assigner un enseignant →");
+        next1.addActionListener(e -> {
+            if (!validateRef[0].getAsBoolean()) return;
+            teachDropRef[0].setItems(enseignantDAO.getAllEnseignants());
+            teachDropRef[0].clearSelection();
+            ((CardLayout)outer.getLayout()).show(outer, "PHASE2");
+        });
+
+        // Layout: [Annuler] on left | [Créer sans enseignant] [Assigner un enseignant →] on right
+        JPanel btns1 = new JPanel(new BorderLayout());
+        btns1.setOpaque(false);
+        JPanel btns1Left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        btns1Left.setOpaque(false);
+        btns1Left.add(cancel1);
+        JPanel btns1Right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        btns1Right.setOpaque(false);
+        btns1Right.add(skip1);
+        btns1Right.add(next1);
+        btns1.add(btns1Left,  BorderLayout.WEST);
+        btns1.add(btns1Right, BorderLayout.EAST);
+
         gbc.gridy = 5; gbc.insets = new Insets(12,0,0,0);
         phase1.add(btns1, gbc);
 
@@ -221,12 +244,6 @@ public class ModulePanel extends JPanel {
         phase2.setOpaque(false);
         phase2.add(sectionTitle("[+] Ajouter — Assigner un Enseignant"), BorderLayout.NORTH);
 
-        SearchableDropdown<Enseignant>[] teachDropRef = new SearchableDropdown[1];
-        teachDropRef[0] = new SearchableDropdown<>(
-            List.of(),
-            t -> t.getNom() + "  [" + t.getSpecialite() + "]",
-            t -> String.valueOf(t.getIdEnseignant())
-        );
         phase2.add(teachDropRef[0], BorderLayout.CENTER);
 
         JLabel errLbl2 = new JLabel(" ");
@@ -266,11 +283,6 @@ public class ModulePanel extends JPanel {
         btns2.add(back2); btns2.add(confirm2);
         south2.add(btns2, BorderLayout.SOUTH);
         phase2.add(south2, BorderLayout.SOUTH);
-
-        // Wire next1 to populate phase2 teacher list
-        next1.addActionListener(e -> {
-            teachDropRef[0].setItems(enseignantDAO.getAllEnseignants());
-        });
 
         outer.add(phase1, "PHASE1");
         outer.add(phase2, "PHASE2");
@@ -410,7 +422,7 @@ public class ModulePanel extends JPanel {
         outer.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(MainFrame.BORDER_SUBTLE),
             BorderFactory.createEmptyBorder(28, 36, 28, 36)));
-        outer.setPreferredSize(new Dimension(600, 520));
+        outer.setPreferredSize(new Dimension(600, 600));
 
         // Phase A: select module
         JPanel selectCard = new JPanel(new BorderLayout(0, 16));
@@ -481,8 +493,11 @@ public class ModulePanel extends JPanel {
             t -> t.getNom() + "  [" + t.getSpecialite() + "]",
             t -> String.valueOf(t.getIdEnseignant())
         );
-        gbc.gridy=5; gbc.gridwidth=2;
+        modTeacherDropdown.setPreferredSize(new Dimension(0, 200));
+        modTeacherDropdown.setMinimumSize(new Dimension(0, 200));
+        gbc.gridy=5; gbc.gridwidth=2; gbc.weighty=1.0; gbc.fill=GridBagConstraints.BOTH;
         formCard.add(modTeacherDropdown, gbc);
+        gbc.weighty=0; gbc.fill=GridBagConstraints.HORIZONTAL; // reset for subsequent rows
 
         JButton unassignBtn = makeSecondaryButton("Désassigner l'enseignant");
         unassignBtn.addActionListener(e -> modTeacherDropdown.clearSelection());

@@ -19,7 +19,7 @@ import java.util.function.Function;
  *
  * Layout:
  *   ┌─────────────────────────────────┐
- *   │  🔍  [  search field          ] │
+ *   │    [  search field          ] │
  *   ├─────────────────────────────────┤
  *   │  item A                         │  ← scrollable JList (max ~6 visible rows)
  *   │  item B  (selected → blue)      │
@@ -81,7 +81,7 @@ public class SearchableDropdown<T> extends JPanel {
             BorderFactory.createLineBorder(MainFrame.BORDER_SUBTLE),
             BorderFactory.createEmptyBorder(5, 8, 5, 8)
         ));
-        searchField.putClientProperty("JTextField.placeholderText", "🔍  Rechercher…");
+        searchField.putClientProperty("JTextField.placeholderText", "  Rechercher…");
         searchField.setFont(MainFrame.FONT_BODY);
 
         searchField.getDocument().addDocumentListener(new DocumentListener() {
