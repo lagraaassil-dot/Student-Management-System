@@ -8,25 +8,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ModuleDAO — CRUD for the MODULE table.
- *
- * Table assumed:
- *   MODULE(idModule INT PK IDENTITY, nomModule VARCHAR, coefficient INT,
- *          volumeHoraire INT, idEnseignant INT NULL FK → ENSEIGNANT)
- */
+// DAO for the MODULE_ETUDE table.
 public class ModuleDAO {
 
-    // We delegate teacher reconstruction to EnseignantDAO to stay DRY.
+    
     private final EnseignantDAO enseignantDAO = new EnseignantDAO();
 
-    // ------------------------------------------------------------------ CREATE
+    
 
-    /**
-     * Inserts a module and writes the generated PK back into the object.
-     * If the module has no teacher yet, idEnseignant is stored as NULL.
-     * @return true on success
-     */
+    
     public boolean addModule(ModuleEtude m) {
         String sql = "INSERT INTO MODULE (nom, coefficient, volumeHoraire, idEnseignant) "
                    + "VALUES (?, ?, ?, ?)";
@@ -54,12 +44,9 @@ public class ModuleDAO {
         }
     }
 
-    // ------------------------------------------------------------------ READ
+    
 
-    /**
-     * Returns all modules with their teacher (if assigned).
-     * Useful for the module list table and JComboBox in the enrollment panel.
-     */
+    
     public List<ModuleEtude> getAllModules() {
         List<ModuleEtude> list = new ArrayList<>();
         String sql = "SELECT idModule, nom, coefficient, volumeHoraire, idEnseignant FROM MODULE";
@@ -76,9 +63,7 @@ public class ModuleDAO {
         return list;
     }
 
-    /**
-     * Returns a single module by PK, or null if not found.
-     */
+    
     public ModuleEtude getModuleById(int id) {
         String sql = "SELECT idModule, nom, coefficient, volumeHoraire, idEnseignant "
                    + "FROM MODULE WHERE idModule = ?";
@@ -95,10 +80,7 @@ public class ModuleDAO {
         return null;
     }
 
-    /**
-     * Returns all modules taught by a specific teacher.
-     * Useful in an "Enseignant detail" view.
-     */
+    
     public List<ModuleEtude> getModulesByTeacher(int teacherId) {
         List<ModuleEtude> list = new ArrayList<>();
         String sql = "SELECT idModule, nom, coefficient, volumeHoraire, idEnseignant "
@@ -118,13 +100,9 @@ public class ModuleDAO {
         return list;
     }
 
-    // ------------------------------------------------------------------ UPDATE
+    
 
-    /**
-     * Updates all fields of an existing module, including teacher assignment.
-     * Pass a module with enseignant = null to clear the teacher.
-     * @return true if a row was modified
-     */
+    
     public boolean updateModule(ModuleEtude m) {
         String sql = "UPDATE MODULE SET nom = ?, coefficient = ?, volumeHoraire = ?, "
                    + "idEnseignant = ? WHERE idModule = ?";
@@ -145,11 +123,9 @@ public class ModuleDAO {
         }
     }
 
-    // ------------------------------------------------------------------ DELETE
+    
 
- /**
- * Removes a module, its inscriptions, and all associated grades.
- */
+ 
 public boolean deleteModule(int id) {
     String deleteNotes = "DELETE FROM NOTE WHERE idInscription IN "
                        + "(SELECT idInscription FROM INSCRIPTION WHERE idModule = ?)";
@@ -186,12 +162,9 @@ public boolean deleteModule(int id) {
     }
 }
 
-    // ------------------------------------------------------------------ HELPERS
+    
 
-    /**
-     * Sets parameter at {@code index} to the teacher's PK, or SQL NULL
-     * if no teacher is assigned.
-     */
+    
     private void setNullableTeacher(PreparedStatement ps, int index, Enseignant enseignant)
             throws SQLException {
         if (enseignant != null && enseignant.getIdEnseignant() != null) {
@@ -201,10 +174,7 @@ public boolean deleteModule(int id) {
         }
     }
 
-    /**
-     * Maps the current ResultSet row to a Module object,
-     * lazily loading the Enseignant by FK if present.
-     */
+    
     private ModuleEtude mapRow(ResultSet rs) throws SQLException {
         int idMod       = rs.getInt("idModule");
         String nom      = rs.getString("nom");

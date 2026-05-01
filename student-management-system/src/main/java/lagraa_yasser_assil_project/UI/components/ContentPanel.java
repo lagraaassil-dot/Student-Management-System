@@ -7,20 +7,12 @@ import lagraa_yasser_assil_project.UI.components.NavigationController.Section;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * ContentPanel — a CardLayout wrapper that holds all functional panels.
- *
- * CRITICAL for Context Saving: because CardLayout only hides panels rather than
- * destroying them, every panel retains its in-memory state when the user switches
- * sections. The NavigationController decides when to explicitly call reset().
- *
- * Each card is keyed by Section.name() (e.g. "STUDENTS", "MODULES", …).
- */
+// CardLayout wrapper that keeps all section panels alive in memory.
 public class ContentPanel extends JPanel {
 
     private final CardLayout cardLayout;
 
-    // Functional panels — kept as fields so the controller can call reset() on them
+    
     private StudentPanel    studentPanel;
     private ModulePanel     modulePanel;
     private TeacherPanel    teacherPanel;
@@ -34,7 +26,7 @@ public class ContentPanel extends JPanel {
         setLayout(cardLayout);
         setBackground(MainFrame.BG_PANEL);
 
-        // Build all panels eagerly so their state is available immediately
+        
         studentPanel    = new StudentPanel();
         modulePanel     = new ModulePanel();
         teacherPanel    = new TeacherPanel();
@@ -51,20 +43,20 @@ public class ContentPanel extends JPanel {
         add(resultsPanel,    Section.RESULTS.name());
         add(diplomaPanel,    Section.DIPLOMA.name());
 
-        // Show a welcome/placeholder by default
+        
         showWelcome();
     }
 
-    /** Shows the card registered under the given key. */
+    
     public void showCard(String key) {
         cardLayout.show(this, key);
 
-        // Refresh read-only panels whenever they become visible
+        
         if (Section.RESULTS.name().equals(key))  resultsPanel.refresh();
         if (Section.DIPLOMA.name().equals(key))  diplomaPanel.refresh();
     }
 
-    // ── Reset passthrough (called by NavigationController) ───────────────────
+    
 
     public void registerResets(NavigationController controller) {
         controller.registerReset(Section.STUDENTS,   studentPanel::reset);
@@ -74,7 +66,7 @@ public class ContentPanel extends JPanel {
         controller.registerReset(Section.GRADES,     gradesPanel::reset);
     }
 
-    // ── Accessors ─────────────────────────────────────────────────────────────
+    
 
     public StudentPanel    getStudentPanel()    { return studentPanel; }
     public ModulePanel     getModulePanel()     { return modulePanel; }
@@ -82,7 +74,7 @@ public class ContentPanel extends JPanel {
     public EnrollmentPanel getEnrollmentPanel() { return enrollmentPanel; }
     public GradesPanel     getGradesPanel()     { return gradesPanel; }
 
-    // ── Welcome card ──────────────────────────────────────────────────────────
+    
 
     private void showWelcome() {
         JPanel welcome = new JPanel(new GridBagLayout());

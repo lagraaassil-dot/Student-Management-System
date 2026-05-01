@@ -8,19 +8,15 @@ public class Etudiant {
     private String prenom;
     private Date dateNaissance;
     private String email;
-    private boolean isDiplome; // true if the student has graduated, false otherwise
-   
+    private boolean isDiplome; // flipped to true once all modules are validated
 
-
-    // Constructor
-        public Etudiant( String nom, String prenom, Date dateNaissance, String email) {      
+    public Etudiant(String nom, String prenom, Date dateNaissance, String email) {
         this.nom = nom;
         this.prenom = prenom;
         this.dateNaissance = dateNaissance;
         this.email = email;
-        this.isDiplome = false; // Default to not graduated
+        this.isDiplome = false;
     }
-
 
     // Getters
     public Integer getIdEtudiant() { return idEtudiant; }
@@ -30,19 +26,16 @@ public class Etudiant {
     public String getEmail() { return email; }
     public boolean isDiplome() { return isDiplome; }
 
-
     // Setters
-    public void setId(Integer id){this.idEtudiant=id;}
+    public void setId(Integer id) { this.idEtudiant = id; }
     public void setNom(String nom) { this.nom = nom; }
     public void setPrenom(String prenom) { this.prenom = prenom; }
     public void setDateNaissance(Date dateNaissance) { this.dateNaissance = dateNaissance; }
-    public void setEmail(String email) {if(email.matches("^[A-Za-z0-9+_.-]+@(gmail|hotmail|usthb|yahoo)\\.com$")) this.email = email; }
-    public void setDiplome (boolean isDiplome) { this.isDiplome = isDiplome; }
+    public void setDiplome(boolean isDiplome) { this.isDiplome = isDiplome; }
 
-
-
-    
-
-
-
+    // Only accept addresses from known domains
+    public void setEmail(String email) {
+        if (email.matches("^[A-Za-z0-9+_.-]+@(gmail|hotmail|usthb|yahoo)\\.com$"))
+            this.email = email;
+    }
 }

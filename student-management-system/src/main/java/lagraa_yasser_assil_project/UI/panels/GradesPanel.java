@@ -18,28 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * GradesPanel — Add · Modify · Delete · Show grades.
- *
- * Type auto-logic:
- *   0 (CC)       → student has NO notes for this enrollment
- *   1 (Exam)     → student has CC, no Exam yet
- *   2 (Rattrapage) → student failed (isValidated = false), has CC + Exam
- *
- * Enrollment list filter for ADD:
- *   Only enrollments where module has teacher AND student hasn't completed
- *   (i.e. not passed without retake, or hasn't already taken retake).
- *
- * Grade format: 0–20, decimals only .00/.25/.50/.75
- */
+// Panel for adding, editing, and deleting grades.
 public class GradesPanel extends JPanel {
 
-    // ── DAOs ──────────────────────────────────────────────────────────────────
+    
     private final EtudiantDAO    etudiantDAO    = new EtudiantDAO();
     private final InscriptionDAO inscriptionDAO = new InscriptionDAO();
     private final NoteDAO        noteDAO        = new NoteDAO();
 
-    // ── Layout ────────────────────────────────────────────────────────────────
+    
     private final CardLayout cardLayout = new CardLayout();
     private static final String CARD_LEVEL1 = "LEVEL1";
     private static final String CARD_ADD    = "ADD";
@@ -49,7 +36,7 @@ public class GradesPanel extends JPanel {
 
     private NavigationController controller;
 
-    // ── Add state ─────────────────────────────────────────────────────────────
+    
     private SearchableDropdown<Inscription> addEnrollmentDropdown;
     private JLabel addEnrollmentLabel;
     private JLabel addTypeLabel;
@@ -58,7 +45,7 @@ public class GradesPanel extends JPanel {
     private Inscription addSelectedEnrollment;
     private int addNoteType = -1;
 
-    // ── Modify state ──────────────────────────────────────────────────────────
+    
     private SearchableDropdown<Inscription> modEnrollmentDropdown;
     private JLabel modEnrollmentLabel;
     private JPanel modNotesPanel;
@@ -67,14 +54,14 @@ public class GradesPanel extends JPanel {
     private List<Note> modNotes = new ArrayList<>();
     private List<JTextField> modFields = new ArrayList<>();
 
-    // ── Delete state ──────────────────────────────────────────────────────────
+    
     private SearchableDropdown<Inscription> delEnrollmentDropdown;
     private JLabel delEnrollmentLabel;
     private JComboBox<String> delTypeCombo;
     private JButton confirmDelBtn;
     private Inscription delSelectedEnrollment;
 
-    // ── List state ────────────────────────────────────────────────────────────
+    
     private DefaultTableModel listModel;
     private JTable listTable;
     private boolean listSortAsc = true;
@@ -100,7 +87,7 @@ public class GradesPanel extends JPanel {
         if (controller != null) controller.clearDirty(NavigationController.Section.GRADES);
     }
 
-    // ── Level 1 ───────────────────────────────────────────────────────────────
+    
 
     private JPanel buildLevel1Panel() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -153,14 +140,14 @@ public class GradesPanel extends JPanel {
         return btn;
     }
 
-    // ── ADD panel ─────────────────────────────────────────────────────────────
+    
 
     private JPanel buildAddPanel() {
         JPanel outer = new JPanel(new BorderLayout());
         outer.setBackground(MainFrame.BG_PANEL);
         outer.setBorder(BorderFactory.createEmptyBorder(24, 40, 24, 40));
 
-        // Header
+        
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
         JLabel title = new JLabel("[+] Ajouter une note");
@@ -172,7 +159,7 @@ public class GradesPanel extends JPanel {
         header.add(back,  BorderLayout.EAST);
         outer.add(header, BorderLayout.NORTH);
 
-        // Center
+        
         JPanel center = new JPanel();
         center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
         center.setBackground(MainFrame.BG_PANEL);
@@ -278,7 +265,7 @@ public class GradesPanel extends JPanel {
         Note n = new Note(val, addNoteType, addNoteType == 2, addSelectedEnrollment);
         boolean ok = noteDAO.addNote(n);
         if (ok) {
-            // Recalculate validation and diploma
+            
             int insId = addSelectedEnrollment.getIdInscription();
             double avg;
             if (addNoteType == 2) {
@@ -297,7 +284,7 @@ public class GradesPanel extends JPanel {
         }
     }
 
-    // ── MODIFY panel ──────────────────────────────────────────────────────────
+    
 
     private JPanel buildModifyPanel() {
         JPanel outer = new JPanel(new BorderLayout());
@@ -428,7 +415,7 @@ public class GradesPanel extends JPanel {
             double newVal = UIValidator.parseGrade(modFields.get(i).getText().trim());
             noteDAO.updateNote(modNotes.get(i).getIdNote(), newVal);
         }
-        // Recalculate
+        
         int insId = modSelectedEnrollment.getIdInscription();
         boolean hasResit = modNotes.stream().anyMatch(n -> n.getTypeNote() == 2);
         if (hasResit) inscriptionDAO.calculateAndSaveAverageAfterResit(insId);
@@ -440,7 +427,7 @@ public class GradesPanel extends JPanel {
         reset();
     }
 
-    // ── DELETE panel ──────────────────────────────────────────────────────────
+    
 
     private JPanel buildDeletePanel() {
         JPanel outer = new JPanel(new BorderLayout());
@@ -498,7 +485,7 @@ public class GradesPanel extends JPanel {
             delSelectedEnrollment = ins;
             delEnrollmentLabel.setText("[OK] " + enrollmentDisplay(ins));
             delEnrollmentLabel.setForeground(MainFrame.DANGER_RED);
-            // Rebuild type combo to show only note types that actually exist
+            
             java.util.List<Note> existingNotes = noteDAO.getNotesByInscription(ins.getIdInscription());
             boolean hasCC   = existingNotes.stream().anyMatch(n -> n.getTypeNote() == 0);
             boolean hasExam = existingNotes.stream().anyMatch(n -> n.getTypeNote() == 1);
@@ -557,7 +544,7 @@ public class GradesPanel extends JPanel {
     private void confirmDelete() {
         if (delSelectedEnrollment == null) return;
         int insId = delSelectedEnrollment.getIdInscription();
-        // Determine chosen type (0=rattrapage first option, 1=exam, 2=CC)
+        
         String selItem = (String) delTypeCombo.getSelectedItem();
         if (selItem == null) return;
         int targetType = selItem.contains("type 2") ? 2 : selItem.contains("type 1") ? 1 : 0;
@@ -565,7 +552,7 @@ public class GradesPanel extends JPanel {
         List<Note> existingNotes = noteDAO.getNotesByInscription(insId);
         List<Integer> typesPresent = existingNotes.stream().map(Note::getTypeNote).collect(Collectors.toList());
 
-        // Guard: if deleting type 1 but type 2 exists, warn
+        
         if (targetType == 1 && typesPresent.contains(2)) {
             int choice = JOptionPane.showConfirmDialog(this,
                 "Attention : supprimer l'Examen entraîne aussi la suppression du Rattrapage.\n\nContinuer ?",
@@ -579,7 +566,7 @@ public class GradesPanel extends JPanel {
             if (choice != JOptionPane.YES_OPTION) return;
         }
 
-        // Delete notes in descending order (rattrapage → exam → CC)
+        
         for (int t = 2; t >= targetType; t--) {
             final int type = t;
             existingNotes.stream()
@@ -587,18 +574,18 @@ public class GradesPanel extends JPanel {
                 .forEach(n -> noteDAO.deleteNote(n.getIdNote()));
         }
 
-        // After deletion: if CC and exam remain → recalculate; else reset isValidated to NULL
+        
         List<Note> remaining = noteDAO.getNotesByInscription(insId);
         boolean hasCC   = remaining.stream().anyMatch(n -> n.getTypeNote() == 0);
         boolean hasExam = remaining.stream().anyMatch(n -> n.getTypeNote() == 1);
         if (hasCC && hasExam) {
             inscriptionDAO.calculateAndSaveAverage(insId);
         } else {
-            // Reset to null (not yet evaluated)
+            
             resetInscriptionValidated(insId);
         }
 
-        // Revoke diploma if it was set
+        
         revokeDiplomaIfNeeded(delSelectedEnrollment.getEtudiant());
 
         JOptionPane.showMessageDialog(this, "Note(s) supprimée(s).", "Succès", JOptionPane.INFORMATION_MESSAGE);
@@ -606,7 +593,7 @@ public class GradesPanel extends JPanel {
         reset();
     }
 
-    // ── LIST panel ────────────────────────────────────────────────────────────
+    
 
     private JPanel buildListPanel() {
         JPanel outer = new JPanel(new BorderLayout());
@@ -638,7 +625,7 @@ public class GradesPanel extends JPanel {
         listTable.getTableHeader().setForeground(MainFrame.ACCENT_GOLD);
         listTable.setSelectionBackground(MainFrame.NAV_SELECT);
 
-        // Click column 2 (Note) to sort
+        
         listTable.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
                 int col = listTable.columnAtPoint(e.getPoint());
@@ -649,7 +636,7 @@ public class GradesPanel extends JPanel {
             }
         });
 
-        // Color-code by grade value
+        
         listTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object val,
@@ -688,7 +675,7 @@ public class GradesPanel extends JPanel {
         if (controller != null) controller.markDirty(NavigationController.Section.GRADES);
         listModel.setRowCount(0);
         listSortAsc = true;
-        // Collect all notes
+        
         List<Note> allNotes = new ArrayList<>();
         for (Etudiant e : etudiantDAO.getAllEtudiants()) {
             allNotes.addAll(noteDAO.getNotesByStudent(e.getIdEtudiant()));
@@ -721,33 +708,29 @@ public class GradesPanel extends JPanel {
         for (Object[] row : rows) listModel.addRow(row);
     }
 
-    // ── Business logic helpers ─────────────────────────────────────────────────
+    
 
-    /**
-     * Returns enrollments eligible for a new note:
-     * - Module must have a teacher (for grade entry to be valid per spec)
-     * - Student must not have completed (passed without resit OR taken resit)
-     */
+    
     private List<Inscription> getEnrollmentsEligibleForNewNote() {
         List<Inscription> result = new ArrayList<>();
         for (Etudiant e : etudiantDAO.getAllEtudiants()) {
             for (Inscription ins : inscriptionDAO.getInscriptionsByStudent(e.getIdEtudiant())) {
-                if (ins.getModule().getEnseignant() == null) continue; // teacherless
+                if (ins.getModule().getEnseignant() == null) continue; 
                 List<Note> notes = noteDAO.getNotesByInscription(ins.getIdInscription());
                 boolean hasCC     = notes.stream().anyMatch(n -> n.getTypeNote() == 0);
                 boolean hasExam   = notes.stream().anyMatch(n -> n.getTypeNote() == 1);
                 boolean hasResit  = notes.stream().anyMatch(n -> n.getTypeNote() == 2);
-                // Skip if student passed without needing resit, or already did resit
+                
                 Boolean val = ins.getIsValidated();
-                if (Boolean.TRUE.equals(val) && !hasResit) continue; // passed normally
-                if (hasResit) continue; // already took resit (done)
+                if (Boolean.TRUE.equals(val) && !hasResit) continue; 
+                if (hasResit) continue; 
                 result.add(ins);
             }
         }
         return result;
     }
 
-    /** Returns enrollments that have at least one note (for modify / delete). */
+    
     private List<Inscription> getEnrollmentsWithNotes() {
         List<Inscription> result = new ArrayList<>();
         for (Etudiant e : etudiantDAO.getAllEtudiants()) {
@@ -759,22 +742,17 @@ public class GradesPanel extends JPanel {
         return result;
     }
 
-    /**
-     * Determines which note type the student should receive next.
-     *   No notes → type 0 (CC)
-     *   Has CC only → type 1 (Exam)
-     *   Failed (isValidated = false), has CC + Exam → type 2 (Rattrapage)
-     */
+    
     private int determineNextNoteType(Inscription ins) {
         List<Note> notes = noteDAO.getNotesByInscription(ins.getIdInscription());
         boolean hasCC   = notes.stream().anyMatch(n -> n.getTypeNote() == 0);
         boolean hasExam = notes.stream().anyMatch(n -> n.getTypeNote() == 1);
         if (!hasCC)           return 0;
         if (!hasExam)         return 1;
-        return 2; // failed, eligible for resit
+        return 2; 
     }
 
-    /** Resets isValidated to NULL for an enrollment (no exam taken yet). */
+    
     private void resetInscriptionValidated(int insId) {
         try (java.sql.Connection conn = lagraa_yasser_assil_project.utils.DBConnection.getConnection();
              java.sql.PreparedStatement ps = conn.prepareStatement(
@@ -786,7 +764,7 @@ public class GradesPanel extends JPanel {
         }
     }
 
-    /** Revokes diploma if isValidated was reset for any enrollment. */
+    
     private void revokeDiplomaIfNeeded(Etudiant etudiant) {
         try (java.sql.Connection conn = lagraa_yasser_assil_project.utils.DBConnection.getConnection();
              java.sql.PreparedStatement ps = conn.prepareStatement(

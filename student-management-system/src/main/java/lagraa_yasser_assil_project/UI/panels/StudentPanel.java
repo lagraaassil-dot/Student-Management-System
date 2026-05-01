@@ -18,26 +18,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-/**
- * StudentPanel — manages Level 1 (action menu) and Level 2 (forms / lists)
- * for the Students section.
- *
- * Actions: Add · Remove · Modify · Show list
- *
- * Context-saving contract:
- *   • markDirty()  is called as soon as the user picks an action (Level 2 is shown).
- *   • reset()      returns the panel to Level 1 and clears the dirty flag.
- *   • The NavigationController calls reset() on this panel only when the user
- *     CONFIRMS or STARTS an action in a different section.
- */
+// Panel for managing students.
 public class StudentPanel extends JPanel {
 
-    // ── DAOs ──────────────────────────────────────────────────────────────────
+    
     private final EtudiantDAO    etudiantDAO    = new EtudiantDAO();
     private final InscriptionDAO inscriptionDAO = new InscriptionDAO();
     private final NoteDAO        noteDAO        = new NoteDAO();
 
-    // ── Layout ─────────────────────────────────────────────────────────────
+    
     private final CardLayout cardLayout = new CardLayout();
     private static final String CARD_LEVEL1   = "LEVEL1";
     private static final String CARD_ADD      = "ADD";
@@ -45,13 +34,13 @@ public class StudentPanel extends JPanel {
     private static final String CARD_MODIFY   = "MODIFY";
     private static final String CARD_LIST     = "LIST";
 
-    // ── Controller reference (set after construction) ─────────────────────
+    
     private NavigationController controller;
 
-    // ── Currently selected student (for modify / remove) ─────────────────
+    
     private Etudiant selectedStudent;
 
-    // ── "Modify" form fields (kept as fields so reset() can clear them) ───
+    
     private JTextField modNomField, modPrenomField, modEmailField;
 
     public StudentPanel() {
@@ -67,15 +56,15 @@ public class StudentPanel extends JPanel {
         cardLayout.show(this, CARD_LEVEL1);
     }
 
-    // ── Controller injection ──────────────────────────────────────────────
+    
 
     public void setController(NavigationController controller) {
         this.controller = controller;
     }
 
-    // ── Context-saving reset ──────────────────────────────────────────────
+    
 
-    /** Returns this panel to Level-1 and clears any in-progress data. */
+    
     public void reset() {
         selectedStudent = null;
         cardLayout.show(this, CARD_LEVEL1);
@@ -83,9 +72,9 @@ public class StudentPanel extends JPanel {
             controller.clearDirty(NavigationController.Section.STUDENTS);
     }
 
-    // =========================================================================
-    // LEVEL 1 — Action selector
-    // =========================================================================
+    
+    
+    
 
     private JPanel buildLevel1Panel() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -137,9 +126,9 @@ public class StudentPanel extends JPanel {
         return p;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Add student
-    // =========================================================================
+    
+    
+    
 
     private JPanel buildAddPanel() {
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -156,13 +145,13 @@ public class StudentPanel extends JPanel {
         gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill   = GridBagConstraints.HORIZONTAL;
 
-        // Title
+        
         JLabel title = sectionTitle("[+] Ajouter un Étudiant");
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.insets = new Insets(0, 0, 20, 0);
         form.add(title, gbc);
         gbc.gridwidth = 1; gbc.insets = new Insets(6, 8, 6, 8);
 
-        // Fields
+        
         JTextField nomField    = styledField();
         JTextField prenomField = styledField();
         JTextField emailField  = styledField();
@@ -184,14 +173,14 @@ public class StudentPanel extends JPanel {
             form.add(fields[i], gbc);
         }
 
-        // Error label
+        
         JLabel errorLbl = new JLabel(" ");
         errorLbl.setForeground(MainFrame.DANGER_RED);
         errorLbl.setFont(MainFrame.FONT_LABEL);
         gbc.gridx = 0; gbc.gridy = rows.length + 1; gbc.gridwidth = 2;
         form.add(errorLbl, gbc);
 
-        // Buttons
+        
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         btns.setOpaque(false);
         JButton cancelBtn  = makeSecondaryButton("Annuler");
@@ -242,9 +231,9 @@ public class StudentPanel extends JPanel {
         return wrapper;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Remove student
-    // =========================================================================
+    
+    
+    
 
     private SearchableDropdown<Etudiant> removeDropdown;
 
@@ -321,15 +310,15 @@ public class StudentPanel extends JPanel {
         return wrapper;
     }
 
-    /** Called when the Remove card becomes active — reloads the student list. */
+    
     private void refreshRemoveDropdown() {
         if (removeDropdown != null)
             removeDropdown.setItems(etudiantDAO.getAllEtudiants());
     }
 
-    // =========================================================================
-    // LEVEL 2 — Modify student
-    // =========================================================================
+    
+    
+    
 
     private SearchableDropdown<Etudiant> modifyDropdown;
     private JPanel modifyFormCard;
@@ -338,7 +327,7 @@ public class StudentPanel extends JPanel {
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setBackground(MainFrame.BG_PANEL);
 
-        // Two-phase card
+        
         JPanel outerCard = new JPanel(new CardLayout());
         outerCard.setBackground(MainFrame.BG_CARD);
         outerCard.setBorder(BorderFactory.createCompoundBorder(
@@ -347,7 +336,7 @@ public class StudentPanel extends JPanel {
         ));
         outerCard.setPreferredSize(new Dimension(560, 480));
 
-        // Phase A: select student
+        
         JPanel selectCard = new JPanel(new BorderLayout(0, 16));
         selectCard.setOpaque(false);
         selectCard.add(sectionTitle("[*] Modifier — Sélectionner l'étudiant"), BorderLayout.NORTH);
@@ -366,7 +355,7 @@ public class StudentPanel extends JPanel {
                     JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            // Pre-fill form
+            
             modNomField.setText(selectedStudent.getNom());
             modPrenomField.setText(selectedStudent.getPrenom());
             modEmailField.setText(selectedStudent.getEmail());
@@ -384,7 +373,7 @@ public class StudentPanel extends JPanel {
         selectCard.add(modifyDropdown, BorderLayout.CENTER);
         selectCard.add(selectSouth, BorderLayout.SOUTH);
 
-        // Phase B: edit form
+        
         modifyFormCard = new JPanel(new GridBagLayout());
         modifyFormCard.setOpaque(false);
 
@@ -465,9 +454,9 @@ public class StudentPanel extends JPanel {
         }
     }
 
-    // =========================================================================
-    // LEVEL 2 — Show list
-    // =========================================================================
+    
+    
+    
 
     private JTable listTable;
     private DefaultTableModel listTableModel;
@@ -531,30 +520,30 @@ public class StudentPanel extends JPanel {
         }
     }
 
-    // =========================================================================
-    // Overridden to intercept card switches for lazy data load
-    // =========================================================================
+    
+    
+    
 
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
     }
 
-    /** Called by ContentPanel when this panel becomes the active card. */
+    
     public void onActivate() {
-        // Nothing by default; Level-1 is always shown first.
+        
     }
 
-    // ── Called before showing remove/modify to pre-load data ──────────────
+    
 
     private void markDirty() {
         if (controller != null)
             controller.markDirty(NavigationController.Section.STUDENTS);
     }
 
-    // =========================================================================
-    // Helpers — UI factory methods
-    // =========================================================================
+    
+    
+    
 
     private JLabel sectionTitle(String text) {
         JLabel lbl = new JLabel(text);

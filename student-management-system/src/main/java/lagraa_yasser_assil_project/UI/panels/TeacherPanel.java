@@ -19,12 +19,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * TeacherPanel — CRUD for teachers with:
- *   • Department (exclusive checkbox group) → Specialty (SearchableDropdown)
- *   • Assign Module (multi-select from unassigned modules)
- *   • Delete teacher → nullifies their module assignments
- */
+// Panel for managing teachers.
 public class TeacherPanel extends JPanel {
 
     private final EnseignantDAO enseignantDAO = new EnseignantDAO();
@@ -70,9 +65,9 @@ public class TeacherPanel extends JPanel {
             controller.markDirty(NavigationController.Section.TEACHERS);
     }
 
-    // =========================================================================
-    // LEVEL 1
-    // =========================================================================
+    
+    
+    
 
     private JPanel buildLevel1Panel() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -121,9 +116,9 @@ public class TeacherPanel extends JPanel {
         return p;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Add teacher (Dept checkbox → Specialty dropdown)
-    // =========================================================================
+    
+    
+    
 
     private JPanel buildAddPanel() {
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -137,7 +132,7 @@ public class TeacherPanel extends JPanel {
         ));
         outer.setPreferredSize(new Dimension(600, 520));
 
-        // Phase 1: Name + Department
+        
         JPanel phase1 = new JPanel(new GridBagLayout());
         phase1.setOpaque(false);
 
@@ -156,7 +151,7 @@ public class TeacherPanel extends JPanel {
         gbc.gridx = 1; gbc.weightx = 1;
         phase1.add(nomField, gbc);
 
-        // Exclusive checkbox group for Departement
+        
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.insets = new Insets(16, 8, 4, 8);
         phase1.add(fieldLabel("Département *"), gbc);
         gbc.insets = new Insets(4, 8, 4, 8);
@@ -191,7 +186,7 @@ public class TeacherPanel extends JPanel {
         JButton next1   = makePrimaryButton("Suivant →");
         cancel1.addActionListener(e -> reset());
 
-        // Declare specDropRef early so next1's listener can reference it
+        
         @SuppressWarnings("unchecked")
         SearchableDropdown<Specialite>[] specDropRef = new SearchableDropdown[1];
         specDropRef[0] = new SearchableDropdown<>(
@@ -214,7 +209,7 @@ public class TeacherPanel extends JPanel {
             if (chosenDept[0] == null) {
                 errLbl1.setText("Sélectionnez un département."); return;
             }
-            // Populate phase 2 — load specialties BEFORE switching card
+            
             outer.putClientProperty("nom", nomField.getText().trim());
             outer.putClientProperty("dept", chosenDept[0]);
             List<Specialite> specs = Arrays.stream(Specialite.values())
@@ -228,7 +223,7 @@ public class TeacherPanel extends JPanel {
         gbc.gridy = 5; gbc.insets = new Insets(12, 0, 0, 0);
         phase1.add(btns1, gbc);
 
-        // Phase 2: Specialty
+        
         JPanel phase2 = new JPanel(new BorderLayout(0, 16));
         phase2.setOpaque(false);
         phase2.add(sectionTitle("[+] Ajouter — Specialite"), BorderLayout.NORTH);
@@ -271,7 +266,7 @@ public class TeacherPanel extends JPanel {
         south2.add(btns2, BorderLayout.SOUTH);
         phase2.add(south2, BorderLayout.SOUTH);
 
-        // specialty loading merged into next1's first listener above
+        
 
         outer.add(phase1, "PHASE1");
         outer.add(phase2, "PHASE2");
@@ -280,9 +275,9 @@ public class TeacherPanel extends JPanel {
         return wrapper;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Remove teacher
-    // =========================================================================
+    
+    
+    
 
     private SearchableDropdown<Enseignant> removeDropdown;
 
@@ -331,7 +326,7 @@ public class TeacherPanel extends JPanel {
                 "Confirmer", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
             if (res != JOptionPane.YES_OPTION) return;
 
-            // Nullify teacher on all their modules
+            
             for (ModuleEtude m : moduleDAO.getModulesByTeacher(selectedTeacher.getIdEnseignant())) {
                 m.setEnseignant(null);
                 moduleDAO.updateModule(m);
@@ -356,9 +351,9 @@ public class TeacherPanel extends JPanel {
         return wrapper;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Modify teacher (select → dept checkbox → specialty)
-    // =========================================================================
+    
+    
+    
 
     private SearchableDropdown<Enseignant> modifyDropdown;
 
@@ -374,7 +369,7 @@ public class TeacherPanel extends JPanel {
         ));
         outer.setPreferredSize(new Dimension(600, 520));
 
-        // Phase A: select teacher
+        
         JPanel selectPhase = new JPanel(new BorderLayout(0, 16));
         selectPhase.setOpaque(false);
         selectPhase.add(sectionTitle("[*] Modifier — Selectionner"), BorderLayout.NORTH);
@@ -389,7 +384,7 @@ public class TeacherPanel extends JPanel {
 
         JPanel selBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         selBtns.setOpaque(false);
-        // Declare edit-form variables early so nextSel's listener can reference them
+        
         JTextField nomField = styledField();
         ButtonGroup deptGroup = new ButtonGroup();
         Map<JCheckBox, Departement> deptCBs = new LinkedHashMap<>();
@@ -415,7 +410,7 @@ public class TeacherPanel extends JPanel {
                     "Aucune sélection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            // Pre-fill form BEFORE switching card
+            
             nomField.setText(selectedTeacher.getNom());
             Departement curDept = selectedTeacher.getSpecialite().getDepartement();
             deptCBs.forEach((cb, d) -> cb.setSelected(d == curDept));
@@ -430,7 +425,7 @@ public class TeacherPanel extends JPanel {
         selBtns.add(cancelSel); selBtns.add(nextSel);
         selectPhase.add(selBtns, BorderLayout.SOUTH);
 
-        // Phase B: edit form (name + dept + specialty)
+        
         JPanel editPhase = new JPanel(new GridBagLayout());
         editPhase.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -441,18 +436,18 @@ public class TeacherPanel extends JPanel {
         editPhase.add(sectionTitle("[*] Modifier l'Enseignant"), gbc);
         gbc.gridwidth = 1; gbc.insets = new Insets(6, 8, 6, 8);
 
-        // nomField declared earlier (before nextSel listener)
+        
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
         editPhase.add(fieldLabel("Nom *"), gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         editPhase.add(nomField, gbc);
 
-        // Department checkboxes (exclusive)
+        
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.insets = new Insets(12, 8, 4, 8);
         editPhase.add(fieldLabel("Département"), gbc);
         gbc.insets = new Insets(4, 8, 4, 8);
 
-        // deptCBs declared earlier; just rebuild the panel widget here
+        
         JPanel deptPanel = new JPanel(new GridLayout(0, 2, 6, 4));
         deptPanel.setOpaque(false);
         for (Map.Entry<JCheckBox, Departement> ent : deptCBs.entrySet()) {
@@ -465,11 +460,11 @@ public class TeacherPanel extends JPanel {
         editPhase.add(fieldLabel("Spécialité"), gbc);
         gbc.insets = new Insets(4, 8, 4, 8);
 
-        // editSpecRef declared earlier (before nextSel listener)
+        
         gbc.gridy = 5;
         editPhase.add(editSpecRef[0], gbc);
 
-        // Wire dept checkbox changes to update spec dropdown
+        
         for (Map.Entry<JCheckBox, Departement> en : deptCBs.entrySet()) {
             en.getKey().addActionListener(e -> {
                 List<Specialite> specs = Arrays.stream(Specialite.values())
@@ -490,7 +485,7 @@ public class TeacherPanel extends JPanel {
         JButton backBtn = makeSecondaryButton("← Retour");
         JButton saveBtn = makePrimaryButton("Enregistrer");
 
-        // pre-fill merged into nextSel's first listener above
+        
 
         backBtn.addActionListener(e -> ((CardLayout)outer.getLayout()).show(outer, "SELECT"));
         saveBtn.addActionListener(e -> {
@@ -523,9 +518,9 @@ public class TeacherPanel extends JPanel {
         return wrapper;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Assign modules to a teacher (multi-select unassigned modules)
-    // =========================================================================
+    
+    
+    
 
     private SearchableDropdown<Enseignant>     assignTeacherDropdown;
     private SearchableDropdown<ModuleEtude>    assignModuleDropdown;
@@ -542,7 +537,7 @@ public class TeacherPanel extends JPanel {
         ));
         outer.setPreferredSize(new Dimension(580, 500));
 
-        // Phase A: select teacher
+        
         JPanel selPhase = new JPanel(new BorderLayout(0, 16));
         selPhase.setOpaque(false);
         selPhase.add(sectionTitle("[~] Assigner Modules — Enseignant"), BorderLayout.NORTH);
@@ -566,7 +561,7 @@ public class TeacherPanel extends JPanel {
                     "Aucune sélection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            // Load unassigned modules
+            
             List<ModuleEtude> unassigned = moduleDAO.getAllModules().stream()
                 .filter(m -> m.getEnseignant() == null)
                 .collect(Collectors.toList());
@@ -577,7 +572,7 @@ public class TeacherPanel extends JPanel {
         selBtns.add(cancelA); selBtns.add(nextA);
         selPhase.add(selBtns, BorderLayout.SOUTH);
 
-        // Phase B: pick modules (multi-select)
+        
         JPanel modPhase = new JPanel(new BorderLayout(0, 16));
         modPhase.setOpaque(false);
         modPhase.add(sectionTitle("[~] Modules sans enseignant"), BorderLayout.NORTH);
@@ -616,7 +611,7 @@ public class TeacherPanel extends JPanel {
                     "Aucun module", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            // Guard: check that none of the chosen modules already has a teacher
+            
             List<String> alreadyAssigned = chosen.stream()
                 .filter(m -> m.getEnseignant() != null)
                 .map(m -> m.getNomModule() + " (déjà assigné à " + m.getEnseignant().getNom() + ")")
@@ -648,9 +643,9 @@ public class TeacherPanel extends JPanel {
         return wrapper;
     }
 
-    // =========================================================================
-    // LEVEL 2 — List
-    // =========================================================================
+    
+    
+    
 
     private DefaultTableModel listTableModel;
 
@@ -696,7 +691,7 @@ public class TeacherPanel extends JPanel {
         }
     }
 
-    // ── Reload dropdowns depending on which card we're navigating to ──────
+    
 
     private void refreshDropdowns(String card) {
         List<Enseignant> all = enseignantDAO.getAllEnseignants();
@@ -708,9 +703,9 @@ public class TeacherPanel extends JPanel {
         }
     }
 
-    // =========================================================================
-    // UI helpers
-    // =========================================================================
+    
+    
+    
 
     private JLabel sectionTitle(String t) {
         JLabel l = new JLabel(t);

@@ -11,32 +11,21 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
 
-/**
- * DiplomaPanel — read-only panel listing all graduated students (isDiplome = true).
- *
- * Columns: Student | Email | Modules Validated
- *
- * Always refreshed when the card becomes visible (called by ContentPanel.showCard()).
- * Also refreshed implicitly by any grade or enrollment modification through
- * EtudiantDAO.checkAndSetDiploma().
- *
- * A student is considered graduated when ALL their enrollments have isValidated = true
- * and they have at least one enrollment (enforced at DAO level).
- */
+// Read-only panel listing all graduated students.
 public class DiplomaPanel extends JPanel {
 
-    // ── DAOs ──────────────────────────────────────────────────────────────────
+    
     private final EtudiantDAO    etudiantDAO    = new EtudiantDAO();
     private final InscriptionDAO inscriptionDAO = new InscriptionDAO();
 
-    // ── Table ─────────────────────────────────────────────────────────────────
+    
     private DefaultTableModel tableModel;
     private JTable            table;
 
-    // ── Summary counter ───────────────────────────────────────────────────────
+    
     private JLabel countLabel;
 
-    // ── Column indices ────────────────────────────────────────────────────────
+    
     private static final int COL_STUDENT  = 0;
     private static final int COL_EMAIL    = 1;
     private static final int COL_MODULES  = 2;
@@ -50,7 +39,7 @@ public class DiplomaPanel extends JPanel {
         add(buildFooter(),  BorderLayout.SOUTH);
     }
 
-    // ── Header ────────────────────────────────────────────────────────────────
+    
 
     private JPanel buildHeader() {
         JPanel header = new JPanel(new BorderLayout());
@@ -60,7 +49,7 @@ public class DiplomaPanel extends JPanel {
             BorderFactory.createEmptyBorder(20, 24, 16, 24)
         ));
 
-        // Left: title block
+        
         JPanel titleBlock = new JPanel();
         titleBlock.setLayout(new BoxLayout(titleBlock, BoxLayout.Y_AXIS));
         titleBlock.setBackground(MainFrame.BG_PANEL);
@@ -77,7 +66,7 @@ public class DiplomaPanel extends JPanel {
 
         header.add(titleBlock, BorderLayout.WEST);
 
-        // Right: refresh button
+        
         JButton refreshBtn = styledButton("[~] Actualiser");
         refreshBtn.addActionListener(e -> refresh());
         header.add(refreshBtn, BorderLayout.EAST);
@@ -85,7 +74,7 @@ public class DiplomaPanel extends JPanel {
         return header;
     }
 
-    // ── Table ─────────────────────────────────────────────────────────────────
+    
 
     private JScrollPane buildTable() {
         String[] columns = { "Étudiant", "Email", "Modules validés" };
@@ -101,7 +90,7 @@ public class DiplomaPanel extends JPanel {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
                 Component c = super.prepareRenderer(renderer, row, col);
                 if (!isRowSelected(row)) {
-                    // All rows are graduates — use a warm gold-tinted dark row
+                    
                     c.setBackground(new Color(0x22, 0x1E, 0x10));
                     c.setForeground(MainFrame.TEXT_PRIMARY);
                 } else {
@@ -122,19 +111,19 @@ public class DiplomaPanel extends JPanel {
         table.setFocusable(false);
         table.getTableHeader().setReorderingAllowed(false);
 
-        // Style header
+        
         JTableHeader th = table.getTableHeader();
         th.setBackground(MainFrame.BG_PANEL);
         th.setForeground(MainFrame.ACCENT_GOLD);
         th.setFont(MainFrame.FONT_TITLE);
         th.setPreferredSize(new Dimension(0, 36));
 
-        // Column widths
+        
         table.getColumnModel().getColumn(COL_STUDENT).setPreferredWidth(250);
         table.getColumnModel().getColumn(COL_EMAIL  ).setPreferredWidth(280);
         table.getColumnModel().getColumn(COL_MODULES).setPreferredWidth(150);
 
-        // Center-align the modules count column
+        
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(
@@ -151,7 +140,7 @@ public class DiplomaPanel extends JPanel {
         };
         table.getColumnModel().getColumn(COL_MODULES).setCellRenderer(centerRenderer);
 
-        // Gold accent on student name column
+        
         DefaultTableCellRenderer nameRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(
@@ -175,7 +164,7 @@ public class DiplomaPanel extends JPanel {
         return sp;
     }
 
-    // ── Footer ────────────────────────────────────────────────────────────────
+    
 
     private JPanel buildFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.LEFT, 24, 10));
@@ -195,12 +184,9 @@ public class DiplomaPanel extends JPanel {
         return footer;
     }
 
-    // ── Data loading ──────────────────────────────────────────────────────────
+    
 
-    /**
-     * Reloads the list of graduated students from the database.
-     * Called automatically when this card becomes visible.
-     */
+    
     public void refresh() {
         tableModel.setRowCount(0);
 
@@ -225,12 +211,9 @@ public class DiplomaPanel extends JPanel {
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    
 
-    /**
-     * Counts the number of validated enrollments for a student.
-     * A validated enrollment has isValidated = true.
-     */
+    
     private int countValidatedModules(Etudiant etudiant) {
         List<Inscription> inscriptions =
             inscriptionDAO.getInscriptionsByStudent(etudiant.getIdEtudiant());

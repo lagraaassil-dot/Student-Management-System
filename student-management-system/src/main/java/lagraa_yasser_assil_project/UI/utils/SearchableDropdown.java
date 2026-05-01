@@ -13,38 +13,14 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/**
- * SearchableDropdown&lt;T&gt; — a reusable composite component used throughout
- * the application wherever a "search + pick one from list" interaction is needed.
- *
- * Layout:
- *   ┌─────────────────────────────────┐
- *   │    [  search field          ] │
- *   ├─────────────────────────────────┤
- *   │  item A                         │  ← scrollable JList (max ~6 visible rows)
- *   │  item B  (selected → blue)      │
- *   │  item C                         │
- *   └─────────────────────────────────┘
- *
- * Usage:
- * <pre>
- *   SearchableDropdown&lt;Etudiant&gt; dd = new SearchableDropdown&lt;&gt;(
- *       students,
- *       e -> e.getNom() + " " + e.getPrenom(),   // display label
- *       e -> String.valueOf(e.getIdEtudiant())    // secondary search key
- *   );
- *   dd.setOnSelect(etudiant -> { ... });
- * </pre>
- *
- * @param <T> The model type (Etudiant, ModuleEtude, Enseignant, Inscription …)
- */
+// Reusable search-then-pick list component used across all panels.
 public class SearchableDropdown<T> extends JPanel {
 
     private final List<T>           allItems   = new ArrayList<>();
     private final List<T>           filtered   = new ArrayList<>();
 
-    private final Function<T, String> displayFn;  // shown in the list
-    private final Function<T, String> searchFn;   // extra searchable text (e.g. ID)
+    private final Function<T, String> displayFn;  
+    private final Function<T, String> searchFn;   
 
     private final JTextField         searchField;
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -55,14 +31,9 @@ public class SearchableDropdown<T> extends JPanel {
     private boolean     multiSelect  = false;
     private final List<T> selectedItems = new ArrayList<>();
 
-    // ── Constructor ───────────────────────────────────────────────────────────
+    
 
-    /**
-     * @param items     initial list of items to display
-     * @param displayFn maps T → the string shown in the list row
-     * @param searchFn  maps T → additional string matched by the search bar
-     *                  (pass {@code null} to only search by displayFn)
-     */
+    
     public SearchableDropdown(List<T> items,
                                Function<T, String> displayFn,
                                Function<T, String> searchFn) {
@@ -72,7 +43,7 @@ public class SearchableDropdown<T> extends JPanel {
         setLayout(new BorderLayout(0, 4));
         setOpaque(false);
 
-        // ── Search field ──────────────────────────────────────────────────────
+        
         searchField = new JTextField();
         searchField.setBackground(MainFrame.BG_CARD);
         searchField.setForeground(MainFrame.TEXT_PRIMARY);
@@ -91,7 +62,7 @@ public class SearchableDropdown<T> extends JPanel {
         });
         add(searchField, BorderLayout.NORTH);
 
-        // ── JList ─────────────────────────────────────────────────────────────
+        
         jList = new JList<>(listModel);
         jList.setBackground(MainFrame.BG_CARD);
         jList.setForeground(MainFrame.TEXT_PRIMARY);
@@ -130,37 +101,37 @@ public class SearchableDropdown<T> extends JPanel {
         scroll.getViewport().setBackground(MainFrame.BG_CARD);
         scroll.setBorder(BorderFactory.createLineBorder(MainFrame.BORDER_SUBTLE));
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scroll.setPreferredSize(new Dimension(0, 180)); // ~6 rows
+        scroll.setPreferredSize(new Dimension(0, 180)); 
         add(scroll, BorderLayout.CENTER);
 
         setItems(items);
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    
 
-    /** Replace the entire item list and refresh the display. */
+    
     public void setItems(List<T> items) {
         allItems.clear();
         allItems.addAll(items);
         filter();
     }
 
-    /** Appends additional items without clearing existing ones. */
+    
     public void addItems(List<T> items) {
         allItems.addAll(items);
         filter();
     }
 
-    /** Callback fired when the user clicks an item. */
+    
     public void setOnSelect(Consumer<T> onSelect) { this.onSelect = onSelect; }
 
-    /** Returns the single selected item, or null if nothing is selected. */
+    
     public T getSelectedItem() { return selectedItem; }
 
-    /** Returns all selected items (multi-select mode only). */
+    
     public List<T> getSelectedItems() { return new ArrayList<>(selectedItems); }
 
-    /** Clears the search field and selection. */
+    
     public void clearSelection() {
         searchField.setText("");
         jList.clearSelection();
@@ -169,7 +140,7 @@ public class SearchableDropdown<T> extends JPanel {
         filter();
     }
 
-    /** Enables/disables multi-select mode. */
+    
     public void setMultiSelect(boolean multi) {
         this.multiSelect = multi;
         jList.setSelectionMode(multi
@@ -177,7 +148,7 @@ public class SearchableDropdown<T> extends JPanel {
             : ListSelectionModel.SINGLE_SELECTION);
     }
 
-    /** Removes a specific item from the list (e.g. after it has been selected). */
+    
     public void removeItem(T item) {
         allItems.remove(item);
         selectedItems.remove(item);
@@ -185,13 +156,13 @@ public class SearchableDropdown<T> extends JPanel {
         filter();
     }
 
-    /** Manually sets the selected item and refreshes the UI selection. */
+    
 public void setSelectedItem(T item) {
     this.selectedItem = item;
     if (item == null) {
         jList.clearSelection();
     } else {
-        // Find the index in the current filtered list to highlight it in the JList
+        
         int index = filtered.indexOf(item);
         if (index != -1) {
             jList.setSelectedIndex(index);
@@ -200,7 +171,7 @@ public void setSelectedItem(T item) {
     }
 }
 
-    // ── Filtering ─────────────────────────────────────────────────────────────
+    
 
     private void filter() {
         String query = searchField.getText().trim().toLowerCase();
@@ -216,7 +187,7 @@ public void setSelectedItem(T item) {
             }
         }
 
-        // Re-sync multi-select highlights
+        
         if (multiSelect) {
             for (int i = 0; i < filtered.size(); i++) {
                 if (selectedItems.contains(filtered.get(i))) {
@@ -226,7 +197,7 @@ public void setSelectedItem(T item) {
         }
     }
 
-    // ── Striped cell renderer ─────────────────────────────────────────────────
+    
 
     private class StripedRenderer extends DefaultListCellRenderer {
         @Override

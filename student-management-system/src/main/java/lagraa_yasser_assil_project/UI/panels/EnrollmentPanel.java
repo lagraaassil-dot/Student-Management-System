@@ -17,25 +17,15 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * EnrollmentPanel — manages student-module enrollments.
- *
- * Actions: Add · Remove · Show list
- *
- * Key rules:
- *  - Only 1 student × 1 module per enrollment.
- *  - Module must have a teacher assigned for NEW enrollments.
- *    (Existing enrollments remain valid even if teacher is removed.)
- *  - Deleting an enrollment cascades to notes in the DB.
- */
+// Panel for adding and removing student-module enrollments.
 public class EnrollmentPanel extends JPanel {
 
-    // ── DAOs ──────────────────────────────────────────────────────────────────
+    
     private final EtudiantDAO    etudiantDAO    = new EtudiantDAO();
     private final InscriptionDAO inscriptionDAO = new InscriptionDAO();
     private final ModuleDAO      moduleDAO      = new ModuleDAO();
 
-    // ── Layout ────────────────────────────────────────────────────────────────
+    
     private final CardLayout cardLayout = new CardLayout();
     private static final String CARD_LEVEL1 = "LEVEL1";
     private static final String CARD_ADD    = "ADD";
@@ -44,7 +34,7 @@ public class EnrollmentPanel extends JPanel {
 
     private NavigationController controller;
 
-    // ── Add flow state ─────────────────────────────────────────────────────
+    
     private Etudiant   selectedStudent;
     private ModuleEtude selectedModule;
     private SearchableDropdown<Etudiant>    studentDropdown;
@@ -53,13 +43,13 @@ public class EnrollmentPanel extends JPanel {
     private JLabel     selectedModuleLabel;
     private JButton    confirmAddBtn;
 
-    // ── Remove flow state ────────────────────────────────────────────────────
+    
     private SearchableDropdown<Inscription> removeDropdown;
     private JLabel removeSelectedLabel;
     private JButton confirmRemoveBtn;
     private Inscription selectedEnrollment;
 
-    // ── List table ────────────────────────────────────────────────────────────
+    
     private DefaultTableModel listTableModel;
 
     public EnrollmentPanel() {
@@ -76,7 +66,7 @@ public class EnrollmentPanel extends JPanel {
         this.controller = controller;
     }
 
-    // ── Context reset ─────────────────────────────────────────────────────────
+    
 
     public void reset() {
         selectedStudent  = null;
@@ -91,7 +81,7 @@ public class EnrollmentPanel extends JPanel {
         if (controller != null) controller.clearDirty(NavigationController.Section.ENROLLMENT);
     }
 
-    // ── Level 1: Action menu ──────────────────────────────────────────────────
+    
 
     private JPanel buildLevel1Panel() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -132,14 +122,14 @@ public class EnrollmentPanel extends JPanel {
         return btn;
     }
 
-    // ── Add panel ─────────────────────────────────────────────────────────────
+    
 
     private JPanel buildAddPanel() {
         JPanel outer = new JPanel(new BorderLayout());
         outer.setBackground(MainFrame.BG_PANEL);
         outer.setBorder(BorderFactory.createEmptyBorder(24, 32, 24, 32));
 
-        // Header
+        
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
         JLabel title = new JLabel("[+] Nouvelle inscription");
@@ -151,12 +141,12 @@ public class EnrollmentPanel extends JPanel {
         header.add(back,  BorderLayout.EAST);
         outer.add(header, BorderLayout.NORTH);
 
-        // Two-column layout: student | module
+        
         JPanel cols = new JPanel(new GridLayout(1, 2, 32, 0));
         cols.setBackground(MainFrame.BG_PANEL);
         cols.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
-        // Student column
+        
         JPanel studentCol = new JPanel(new BorderLayout(0, 8));
         studentCol.setBackground(MainFrame.BG_PANEL);
         JLabel sLabel = new JLabel("1. Choisir un étudiant");
@@ -183,7 +173,7 @@ public class EnrollmentPanel extends JPanel {
         sdWrap.add(studentDropdown, BorderLayout.NORTH);
         studentCol.add(sdWrap, BorderLayout.CENTER);
 
-        // Module column
+        
         JPanel moduleCol = new JPanel(new BorderLayout(0, 8));
         moduleCol.setBackground(MainFrame.BG_PANEL);
         JLabel mLabel = new JLabel("2. Choisir un module (avec enseignant)");
@@ -214,7 +204,7 @@ public class EnrollmentPanel extends JPanel {
         cols.add(moduleCol);
         outer.add(cols, BorderLayout.CENTER);
 
-        // Confirm
+        
         confirmAddBtn = new JButton("[OK] Confirmer l'inscription");
         confirmAddBtn.setFont(MainFrame.FONT_TITLE);
         confirmAddBtn.setBackground(new Color(0x1A, 0x5C, 0x3A));
@@ -284,7 +274,7 @@ public class EnrollmentPanel extends JPanel {
         }
     }
 
-    // ── Remove panel ──────────────────────────────────────────────────────────
+    
 
     private JPanel buildRemovePanel() {
         JPanel outer = new JPanel(new BorderLayout());
@@ -355,7 +345,7 @@ public class EnrollmentPanel extends JPanel {
             controller.markDirty(NavigationController.Section.ENROLLMENT);
             controller.resetAllDirtyExcept(NavigationController.Section.ENROLLMENT);
         }
-        // Load all enrollments
+        
         List<Inscription> all = getAllInscriptions();
         removeDropdown.setItems(all);
         removeDropdown.clearSelection();
@@ -385,7 +375,7 @@ public class EnrollmentPanel extends JPanel {
         }
     }
 
-    // ── List panel ────────────────────────────────────────────────────────────
+    
 
     private JPanel buildListPanel() {
         JPanel outer = new JPanel(new BorderLayout());
@@ -417,7 +407,7 @@ public class EnrollmentPanel extends JPanel {
         table.getTableHeader().setForeground(MainFrame.ACCENT_GOLD);
         table.setSelectionBackground(MainFrame.NAV_SELECT);
 
-        // Color-code rows by validation status
+        
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object val,
@@ -467,16 +457,16 @@ public class EnrollmentPanel extends JPanel {
         cardLayout.show(this, CARD_LIST);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    
 
-    /** Returns only modules that have a teacher assigned (for new enrollments). */
+    
     private List<ModuleEtude> getModulesWithTeacher() {
         return moduleDAO.getAllModules().stream()
             .filter(m -> m.getEnseignant() != null)
             .collect(Collectors.toList());
     }
 
-    /** Returns all enrollments from all students. */
+    
     private List<Inscription> getAllInscriptions() {
         return etudiantDAO.getAllEtudiants().stream()
             .flatMap(e -> inscriptionDAO.getInscriptionsByStudent(e.getIdEtudiant()).stream())

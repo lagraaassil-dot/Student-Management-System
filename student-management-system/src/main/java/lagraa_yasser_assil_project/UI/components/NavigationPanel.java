@@ -10,14 +10,7 @@ import java.awt.event.*;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * NavigationPanel — the permanent left sidebar.
- *
- * Renders one button per Section. The active section button is highlighted
- * with a left accent bar + light navy fill. Hovering shows a subtle highlight.
- *
- * Width is fixed at 210px. The panel cannot be closed or resized.
- */
+// Fixed left sidebar with one button per section.
 public class NavigationPanel extends JPanel {
 
     private static final int NAV_WIDTH = 210;
@@ -35,13 +28,13 @@ public class NavigationPanel extends JPanel {
         setMinimumSize (new Dimension(NAV_WIDTH, 0));
         setMaximumSize (new Dimension(NAV_WIDTH, Integer.MAX_VALUE));
 
-        // Logo / branding strip
+        
         add(buildBrandStrip());
 
-        // Divider
+        
         add(buildDivider());
 
-        // Nav section label
+        
         JLabel navLabel = new JLabel("  NAVIGATION");
         navLabel.setFont(new Font("Courier New", Font.BOLD, 10));
         navLabel.setForeground(MainFrame.TEXT_SECONDARY);
@@ -49,7 +42,7 @@ public class NavigationPanel extends JPanel {
         navLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         add(navLabel);
 
-        // Buttons
+        
         for (Section s : Section.values()) {
             NavButton btn = new NavButton(s);
             buttons.put(s, btn);
@@ -58,11 +51,11 @@ public class NavigationPanel extends JPanel {
 
         add(Box.createVerticalGlue());
 
-        // Listen for section changes from the controller to update highlight
+        
         controller.addSectionListener(this::setActiveSection);
     }
 
-    // ── Brand strip ───────────────────────────────────────────────────────────
+    
 
     private JPanel buildBrandStrip() {
         JPanel strip = new JPanel();
@@ -98,7 +91,7 @@ public class NavigationPanel extends JPanel {
         return sep;
     }
 
-    // ── Active state ──────────────────────────────────────────────────────────
+    
 
     private void setActiveSection(Section active) {
         buttons.forEach((s, btn) -> btn.setActive(s == active));
@@ -106,7 +99,7 @@ public class NavigationPanel extends JPanel {
         repaint();
     }
 
-    // ── Inner NavButton ───────────────────────────────────────────────────────
+    
 
     private class NavButton extends JPanel {
         private final Section section;
@@ -123,7 +116,7 @@ public class NavigationPanel extends JPanel {
             setPreferredSize(new Dimension(NAV_WIDTH, 48));
             setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            // Left accent bar (visible only when active)
+            
             JPanel accent = new JPanel() {
                 @Override protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
@@ -137,13 +130,13 @@ public class NavigationPanel extends JPanel {
             accent.setPreferredSize(new Dimension(6, 48));
             add(accent, BorderLayout.WEST);
 
-            // Label
+            
             JLabel lbl = new JLabel(" " + section.getLabel());
             lbl.setFont(MainFrame.FONT_LABEL);
             lbl.setForeground(MainFrame.TEXT_PRIMARY);
             add(lbl, BorderLayout.CENTER);
 
-            // Mouse interactions
+            
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseEntered(MouseEvent e)  { hovered = true;  repaint(); }
                 @Override public void mouseExited (MouseEvent e)  { hovered = false; repaint(); }

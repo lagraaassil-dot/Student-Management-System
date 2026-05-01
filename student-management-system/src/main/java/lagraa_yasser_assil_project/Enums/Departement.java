@@ -1,5 +1,6 @@
 package lagraa_yasser_assil_project.Enums;
 
+// All departments available in the institution.
 public enum Departement {
     INFORMATIQUE("Informatique"),
     ELECTRONIQUE("Électronique"),

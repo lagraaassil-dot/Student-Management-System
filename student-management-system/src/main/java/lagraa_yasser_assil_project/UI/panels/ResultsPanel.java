@@ -14,43 +14,23 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ResultsPanel — read-only panel showing student averages.
- *
- * Columns: Student | Average | Session | Remark
- *
- * Color coding:
- *   Green row  → average ≥ 10 (Admis)
- *   Red row    → average < 10  (Ajourné)
- *
- * Remarks:
- *   "Admis (session normale)"    → passed, no type-2 grade in validated modules
- *   "Admis (session rattrapage)" → passed, at least one type-2 grade
- *   "Ajourné"                    → average < 10
- *
- * Only students who have at least one CC + Exam pair (type 0 + type 1)
- * appear in the table (incomplete data is excluded per spec).
- *
- * The table can be sorted ascending/descending by clicking the Average column header.
- *
- * refresh() is called automatically by ContentPanel whenever this card becomes visible.
- */
+// Read-only results view showing averages per enrollment.
 public class ResultsPanel extends JPanel {
 
-    // ── DAOs ──────────────────────────────────────────────────────────────────
+    
     private final EtudiantDAO    etudiantDAO    = new EtudiantDAO();
     private final InscriptionDAO inscriptionDAO = new InscriptionDAO();
     private final NoteDAO        noteDAO        = new NoteDAO();
 
-    // ── Table ─────────────────────────────────────────────────────────────────
+    
     private DefaultTableModel tableModel;
     private JTable            table;
-    private boolean           sortAsc = true; // default ascending by average
-    // Filter modes: ALL, NORMAL_ONLY, RESIT_ONLY, FAILED_ONLY
+    private boolean           sortAsc = true; 
+    
     private String            filterMode = "ALL";
     private java.util.List<Object[]> allRows = new java.util.ArrayList<>();
 
-    // ── Column indices ────────────────────────────────────────────────────────
+    
     private static final int COL_STUDENT = 0;
     private static final int COL_AVERAGE = 1;
     private static final int COL_SESSION = 2;
@@ -65,7 +45,7 @@ public class ResultsPanel extends JPanel {
         add(buildFooter(),  BorderLayout.SOUTH);
     }
 
-    // ── Header ────────────────────────────────────────────────────────────────
+    
 
     private JPanel buildHeader() {
         JPanel header = new JPanel(new BorderLayout());
@@ -80,7 +60,7 @@ public class ResultsPanel extends JPanel {
         title.setForeground(MainFrame.ACCENT_GOLD);
         header.add(title, BorderLayout.WEST);
 
-        // Filter + refresh buttons
+        
         JPanel east = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
         east.setOpaque(false);
 
@@ -119,7 +99,7 @@ public class ResultsPanel extends JPanel {
         sortByAverage();
     }
 
-    // ── Table ─────────────────────────────────────────────────────────────────
+    
 
     private JScrollPane buildTable() {
         String[] columns = { "Étudiant", "Moyenne", "Session", "Remarque" };
@@ -134,13 +114,13 @@ public class ResultsPanel extends JPanel {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
                 Component c = super.prepareRenderer(renderer, row, col);
-                // Determine row color from average value stored in model
+                
                 Double avg = (Double) tableModel.getValueAt(row, COL_AVERAGE);
                 boolean passed = avg != null && avg >= 10.0;
                 if (!isRowSelected(row)) {
                     c.setBackground(passed
-                        ? new Color(0x1A, 0x3D, 0x27)   // dark green tint
-                        : new Color(0x3D, 0x1A, 0x1A));  // dark red tint
+                        ? new Color(0x1A, 0x3D, 0x27)   
+                        : new Color(0x3D, 0x1A, 0x1A));  
                 } else {
                     c.setBackground(MainFrame.NAV_SELECT);
                 }
@@ -159,20 +139,20 @@ public class ResultsPanel extends JPanel {
         table.setFocusable(false);
         table.getTableHeader().setReorderingAllowed(false);
 
-        // Style the header
+        
         JTableHeader th = table.getTableHeader();
         th.setBackground(MainFrame.BG_PANEL);
         th.setForeground(MainFrame.ACCENT_GOLD);
         th.setFont(MainFrame.FONT_TITLE);
         th.setPreferredSize(new Dimension(0, 36));
 
-        // Column widths
+        
         table.getColumnModel().getColumn(COL_STUDENT).setPreferredWidth(220);
         table.getColumnModel().getColumn(COL_AVERAGE).setPreferredWidth(100);
         table.getColumnModel().getColumn(COL_SESSION).setPreferredWidth(200);
         table.getColumnModel().getColumn(COL_REMARK ).setPreferredWidth(250);
 
-        // Custom renderer for the Average column — center + format
+        
         table.getColumnModel().getColumn(COL_AVERAGE).setCellRenderer(
             new DefaultTableCellRenderer() {
                 @Override
@@ -195,7 +175,7 @@ public class ResultsPanel extends JPanel {
             }
         );
 
-        // Sort by Average column on header click
+        
         th.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
                 int col = table.columnAtPoint(e.getPoint());
@@ -213,14 +193,14 @@ public class ResultsPanel extends JPanel {
         return sp;
     }
 
-    // ── Footer ────────────────────────────────────────────────────────────────
+    
 
     private JPanel buildFooter() {
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.LEFT, 24, 10));
         footer.setBackground(MainFrame.BG_PANEL);
         footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, MainFrame.BORDER_SUBTLE));
 
-        // Legend
+        
         JLabel lgGreen = legendDot(MainFrame.SUCCESS_GREEN, "Admis (≥ 10)");
         JLabel lgRed   = legendDot(MainFrame.DANGER_RED,   "Ajourné (< 10)");
         JLabel lgSort  = new JLabel("  ↕ Cliquer sur « Moyenne » pour trier");
@@ -244,12 +224,9 @@ public class ResultsPanel extends JPanel {
         return lbl;
     }
 
-    // ── Data loading ──────────────────────────────────────────────────────────
+    
 
-    /**
-     * Reloads data from the database and repopulates the table.
-     * Called automatically when this card becomes visible.
-     */
+    
     public void refresh() {
         tableModel.setRowCount(0);
         allRows.clear();
@@ -258,7 +235,7 @@ public class ResultsPanel extends JPanel {
 
         for (Etudiant etudiant : students) {
             ResultRow row = computeResultRow(etudiant);
-            if (row == null) continue; // insufficient data — skip
+            if (row == null) continue; 
             allRows.add(new Object[]{
                 etudiant.getNom() + " " + etudiant.getPrenom(),
                 row.average,
@@ -268,28 +245,14 @@ public class ResultsPanel extends JPanel {
         }
 
         filterMode = "ALL";
-        // Default sort: descending average (best first)
+        
         sortAsc = false;
         applyFilter();
     }
 
-    // ── Computation helpers ───────────────────────────────────────────────────
+    
 
-    /**
-     * Builds a ResultRow for a student.
-     *
-     * Algorithm:
-     *   1. Collect all enrollments for the student.
-     *   2. For each enrollment that has both CC (type 0) and Exam (type 1):
-     *        - bestExam = max(exam, rattrapage) if rattrapage exists, else exam
-     *        - moduleAvg = (CC × 40 + bestExam × 60) / 100
-     *   3. Global average = weighted sum(moduleAvg × coefficient) / sum(coefficient)
-     *   4. Session = "session normale"  if global ≥ 10 and no type-2 note was used
-     *              = "session rattrapage" if global ≥ 10 and at least one type-2 note contributed
-     *              = "Ajourné"            if global < 10
-     *
-     * Returns null if no enrollment has both CC + Exam (cannot compute).
-     */
+    
     private ResultRow computeResultRow(Etudiant etudiant) {
         List<Inscription> inscriptions = inscriptionDAO.getInscriptionsByStudent(
                 etudiant.getIdEtudiant());
@@ -312,17 +275,17 @@ public class ResultsPanel extends JPanel {
                 if (n.getTypeNote() == 2) rattrapage = n.getValeur();
             }
 
-            if (cc < 0 || exam < 0) continue; // incomplete — skip this module
+            if (cc < 0 || exam < 0) continue; 
 
             hasAnyData = true;
 
             double bestExam = (rattrapage >= 0) ? Math.max(exam, rattrapage) : exam;
             if (rattrapage >= 0 && bestExam >= exam) {
-                // rattrapage note was used and it was ≥ original exam
-                // (even if it didn't improve, the student took the resit — counts)
+                
+                
                 usedResit = true;
             }
-            if (rattrapage >= 0) usedResit = true; // any resit taken = session rattrapage
+            if (rattrapage >= 0) usedResit = true; 
 
             double moduleAvg = (cc * 40 + bestExam * 60) / 100.0;
             int coeff        = ins.getModule().getCoefficient();
@@ -350,7 +313,7 @@ public class ResultsPanel extends JPanel {
         return new ResultRow(globalAvg, session, remark);
     }
 
-    // ── Sorting ───────────────────────────────────────────────────────────────
+    
 
     private void sortByAverage() {
         List<Object[]> rows = new ArrayList<>();
@@ -370,7 +333,7 @@ public class ResultsPanel extends JPanel {
         for (Object[] row : rows) tableModel.addRow(row);
     }
 
-    // ── Utility ───────────────────────────────────────────────────────────────
+    
 
     private JButton styledButton(String text) {
         JButton btn = new JButton(text);
@@ -387,7 +350,7 @@ public class ResultsPanel extends JPanel {
         return btn;
     }
 
-    // ── Inner data record ──────────────────────────────────────────────────────
+    
 
     private static class ResultRow {
         final double average;

@@ -19,14 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-/**
- * ModulePanel — CRUD for modules.
- *
- * Add: name + coeff + volumeHoraire, optional teacher assignment (Skip button).
- * Remove: SearchableDropdown; cascades inscriptions & notes; rechecks isDiplome.
- * Modify: pick module → edit fields + change/unassign teacher.
- * Show list: table of all modules.
- */
+// Panel for managing study modules.
 public class ModulePanel extends JPanel {
 
     private final ModuleDAO      moduleDAO      = new ModuleDAO();
@@ -70,9 +63,9 @@ public class ModulePanel extends JPanel {
             controller.markDirty(NavigationController.Section.MODULES);
     }
 
-    // =========================================================================
-    // LEVEL 1
-    // =========================================================================
+    
+    
+    
 
     private JPanel buildLevel1Panel() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -119,9 +112,9 @@ public class ModulePanel extends JPanel {
         return p;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Add module (2-phase: info → optional teacher)
-    // =========================================================================
+    
+    
+    
 
     private JPanel buildAddPanel() {
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -134,7 +127,7 @@ public class ModulePanel extends JPanel {
             BorderFactory.createEmptyBorder(28, 36, 28, 36)));
         outer.setPreferredSize(new Dimension(600, 500));
 
-        // Phase 1: module fields
+        
         JPanel phase1 = new JPanel(new GridBagLayout());
         phase1.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -164,7 +157,7 @@ public class ModulePanel extends JPanel {
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
         phase1.add(errLbl1, gbc);
 
-        // Declare teachDropRef BEFORE the button listeners that reference it
+        
         @SuppressWarnings("unchecked")
         SearchableDropdown<Enseignant>[] teachDropRef = new SearchableDropdown[1];
         teachDropRef[0] = new SearchableDropdown<>(
@@ -173,11 +166,11 @@ public class ModulePanel extends JPanel {
             t -> String.valueOf(t.getIdEnseignant())
         );
 
-        // Shared validation helper — stores results in client properties, returns true on success
+        
         java.util.function.BooleanSupplier[] validateRef = new java.util.function.BooleanSupplier[1];
         validateRef[0] = () -> {
             errLbl1.setText(" ");
-            outer.putClientProperty("nom", null); // reset so callers detect failure
+            outer.putClientProperty("nom", null); 
             String nom = nomField.getText().trim();
             if (!UIValidator.notBlank(nom))                   { errLbl1.setText("Le nom est requis."); return false; }
             if (!UIValidator.isPositiveInt(coeffField.getText()))      { errLbl1.setText("Coefficient invalide (entier > 0)."); return false; }
@@ -191,7 +184,7 @@ public class ModulePanel extends JPanel {
         JButton cancel1 = makeSecondaryButton("Annuler");
         cancel1.addActionListener(e -> reset());
 
-        // "Skip" — create module without a teacher
+        
         JButton skip1 = makeSecondaryButton("Créer sans enseignant");
         skip1.setForeground(MainFrame.ACCENT_GOLD);
         skip1.addActionListener(e -> {
@@ -214,7 +207,7 @@ public class ModulePanel extends JPanel {
             }
         });
 
-        // "Next" — proceed to teacher assignment phase
+        
         JButton next1 = makePrimaryButton("Assigner un enseignant →");
         next1.addActionListener(e -> {
             if (!validateRef[0].getAsBoolean()) return;
@@ -223,7 +216,7 @@ public class ModulePanel extends JPanel {
             ((CardLayout)outer.getLayout()).show(outer, "PHASE2");
         });
 
-        // Layout: [Annuler] on left | [Créer sans enseignant] [Assigner un enseignant →] on right
+        
         JPanel btns1 = new JPanel(new BorderLayout());
         btns1.setOpaque(false);
         JPanel btns1Left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -239,7 +232,7 @@ public class ModulePanel extends JPanel {
         gbc.gridy = 5; gbc.insets = new Insets(12,0,0,0);
         phase1.add(btns1, gbc);
 
-        // Phase 2: assign teacher
+        
         JPanel phase2 = new JPanel(new BorderLayout(0, 12));
         phase2.setOpaque(false);
         phase2.add(sectionTitle("[+] Ajouter — Assigner un Enseignant"), BorderLayout.NORTH);
@@ -291,9 +284,9 @@ public class ModulePanel extends JPanel {
         return wrapper;
     }
 
-    // =========================================================================
-    // LEVEL 2 — Remove module
-    // =========================================================================
+    
+    
+    
 
     private SearchableDropdown<ModuleEtude> removeDropdown;
 
@@ -349,15 +342,15 @@ public class ModulePanel extends JPanel {
                 "Confirmer la suppression", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
             if (res != JOptionPane.YES_OPTION) return;
 
-            // Cascade: get all inscriptions for this module, delete notes, update diploma
+            
             int modId = selectedModule.getIdModule();
-            // We rely on DB cascade for notes, but need to recheck diplomas
-            // Get all students enrolled in this module first
+            
+            
             List<Etudiant> affectedStudents = getStudentsEnrolledInModule(modId);
 
             boolean ok = moduleDAO.deleteModule(modId);
             if (ok) {
-                // Recheck diploma for all affected students
+                
                 for (Etudiant stu : affectedStudents) {
                     etudiantDAO.checkAndSetDiploma(stu);
                 }
@@ -378,7 +371,7 @@ public class ModulePanel extends JPanel {
     }
 
     private List<Etudiant> getStudentsEnrolledInModule(int moduleId) {
-        // Re-use InscriptionDAO to get students enrolled in this module before deletion
+        
         java.util.List<Etudiant> students = new java.util.ArrayList<>();
         String sql = "SELECT DISTINCT e.idEtudiant, e.nom, e.prenom, e.dateNaissance, e.email, e.isDiplome "
                    + "FROM ETUDIANT e JOIN INSCRIPTION i ON e.idEtudiant = i.idEtudiant "
@@ -405,9 +398,9 @@ public class ModulePanel extends JPanel {
         }
     }
 
-    // =========================================================================
-    // LEVEL 2 — Modify module
-    // =========================================================================
+    
+    
+    
 
     private SearchableDropdown<ModuleEtude> modifyDropdown;
     private JTextField modNomField, modCoeffField, modVhField;
@@ -424,7 +417,7 @@ public class ModulePanel extends JPanel {
             BorderFactory.createEmptyBorder(28, 36, 28, 36)));
         outer.setPreferredSize(new Dimension(600, 600));
 
-        // Phase A: select module
+        
         JPanel selectCard = new JPanel(new BorderLayout(0, 16));
         selectCard.setOpaque(false);
         selectCard.add(sectionTitle("[*] Modifier — Selectionner le Module"), BorderLayout.NORTH);
@@ -459,7 +452,7 @@ public class ModulePanel extends JPanel {
         selectCard.add(modifyDropdown, BorderLayout.CENTER);
         selectCard.add(selectSouth, BorderLayout.SOUTH);
 
-        // Phase B: edit form
+        
         JPanel formCard = new JPanel(new GridBagLayout());
         formCard.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -483,7 +476,7 @@ public class ModulePanel extends JPanel {
             formCard.add(flds[i], gbc);
         }
 
-        // Teacher assignment sub-section
+        
         gbc.gridx=0; gbc.gridy=4; gbc.gridwidth=2; gbc.insets=new Insets(14,8,4,8);
         formCard.add(fieldLabel("Enseignant (optionnel — laisser vide pour désassigner)"), gbc);
         gbc.insets=new Insets(6,8,6,8);
@@ -497,7 +490,7 @@ public class ModulePanel extends JPanel {
         modTeacherDropdown.setMinimumSize(new Dimension(0, 200));
         gbc.gridy=5; gbc.gridwidth=2; gbc.weighty=1.0; gbc.fill=GridBagConstraints.BOTH;
         formCard.add(modTeacherDropdown, gbc);
-        gbc.weighty=0; gbc.fill=GridBagConstraints.HORIZONTAL; // reset for subsequent rows
+        gbc.weighty=0; gbc.fill=GridBagConstraints.HORIZONTAL; 
 
         JButton unassignBtn = makeSecondaryButton("Désassigner l'enseignant");
         unassignBtn.addActionListener(e -> modTeacherDropdown.clearSelection());
@@ -525,7 +518,7 @@ public class ModulePanel extends JPanel {
             selectedModule.setNomModule(nom);
             selectedModule.setCoefficient(Integer.parseInt(modCoeffField.getText().trim()));
             selectedModule.setVolumeHoraire(Integer.parseInt(modVhField.getText().trim()));
-            selectedModule.setEnseignant(modTeacherDropdown.getSelectedItem()); // null if unassigned
+            selectedModule.setEnseignant(modTeacherDropdown.getSelectedItem()); 
 
             boolean ok = moduleDAO.updateModule(selectedModule);
             if (ok) {
@@ -554,9 +547,9 @@ public class ModulePanel extends JPanel {
         }
     }
 
-    // =========================================================================
-    // LEVEL 2 — Show list
-    // =========================================================================
+    
+    
+    
 
     private DefaultTableModel listTableModel;
 
@@ -602,9 +595,9 @@ public class ModulePanel extends JPanel {
         }
     }
 
-    // =========================================================================
-    // Helpers
-    // =========================================================================
+    
+    
+    
 
     private JLabel sectionTitle(String text) {
         JLabel l = new JLabel(text);

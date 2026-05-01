@@ -1,5 +1,6 @@
 package lagraa_yasser_assil_project.Enums;
 
+// Every speciality offered, grouped by department.
 public enum Specialite {
     // INFO
     GL("Génie Logiciel", Departement.INFORMATIQUE),
@@ -112,7 +113,5 @@ public enum Specialite {
     }
 
     public Departement getDepartement() { return departement; }
-
-    @Override
-    public String toString() { return label; }
+    @Override public String toString() { return label; }
 }
