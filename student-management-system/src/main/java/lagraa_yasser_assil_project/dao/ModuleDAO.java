@@ -147,25 +147,44 @@ public class ModuleDAO {
 
     // ------------------------------------------------------------------ DELETE
 
-    /**
-     * Removes a module by PK.
-     * Ensure cascading deletes or manual cleanup of INSCRIPTION / NOTE rows
-     * at the DB level before calling this.
-     * @return true if a row was deleted
-     */
-    public boolean deleteModule(int id) {
-        String sql = "DELETE FROM MODULE WHERE idModule = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+ /**
+ * Removes a module, its inscriptions, and all associated grades.
+ */
+public boolean deleteModule(int id) {
+    String deleteNotes = "DELETE FROM NOTE WHERE idInscription IN "
+                       + "(SELECT idInscription FROM INSCRIPTION WHERE idModule = ?)";
+    String deleteInsc  = "DELETE FROM INSCRIPTION WHERE idModule = ?";
+    String deleteMod   = "DELETE FROM MODULE WHERE idModule = ?";
 
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-
+    try (Connection conn = DBConnection.getConnection()) {
+        conn.setAutoCommit(false);
+        try {
+            try (PreparedStatement ps = conn.prepareStatement(deleteNotes)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(deleteInsc)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(deleteMod)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            conn.commit();
+            return true;
         } catch (SQLException ex) {
+            conn.rollback();
             ex.printStackTrace();
             return false;
+        } finally {
+            conn.setAutoCommit(true);
         }
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        return false;
     }
+}
 
     // ------------------------------------------------------------------ HELPERS
 

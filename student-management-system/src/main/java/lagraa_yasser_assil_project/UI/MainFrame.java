@@ -85,7 +85,7 @@ public class MainFrame extends JFrame {
         bar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER_SUBTLE));
         bar.setPreferredSize(new Dimension(0, 48));
 
-        JLabel title = new JLabel("  ◈  SYSTÈME DE GESTION ACADÉMIQUE");
+        JLabel title = new JLabel("  [*] SYSTEME DE GESTION ACADEMIQUE");
         title.setFont(FONT_DISPLAY);
         title.setForeground(ACCENT_GOLD);
         bar.add(title, BorderLayout.WEST);

@@ -46,6 +46,9 @@ public class ResultsPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JTable            table;
     private boolean           sortAsc = true; // default ascending by average
+    // Filter modes: ALL, NORMAL_ONLY, RESIT_ONLY, FAILED_ONLY
+    private String            filterMode = "ALL";
+    private java.util.List<Object[]> allRows = new java.util.ArrayList<>();
 
     // ── Column indices ────────────────────────────────────────────────────────
     private static final int COL_STUDENT = 0;
@@ -72,16 +75,48 @@ public class ResultsPanel extends JPanel {
             BorderFactory.createEmptyBorder(20, 24, 16, 24)
         ));
 
-        JLabel title = new JLabel("📈  Résultats");
+        JLabel title = new JLabel("[#] Resultats");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         header.add(title, BorderLayout.WEST);
 
-        JButton refreshBtn = styledButton("↻  Actualiser");
+        // Filter + refresh buttons
+        JPanel east = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
+        east.setOpaque(false);
+
+        JButton btnAll    = styledButton("Tous");
+        JButton btnNormal = styledButton("Session normale");
+        JButton btnResit  = styledButton("Session rattrapage");
+        JButton btnFailed = styledButton("Ajournes");
+        JButton refreshBtn= styledButton("[~] Actualiser");
+
+        btnAll.addActionListener(e -> { filterMode = "ALL";    applyFilter(); });
+        btnNormal.addActionListener(e -> { filterMode = "NORMAL"; applyFilter(); });
+        btnResit.addActionListener(e -> { filterMode = "RESIT";  applyFilter(); });
+        btnFailed.addActionListener(e -> { filterMode = "FAILED"; applyFilter(); });
         refreshBtn.addActionListener(e -> refresh());
-        header.add(refreshBtn, BorderLayout.EAST);
+
+        east.add(btnAll); east.add(btnNormal); east.add(btnResit); east.add(btnFailed);
+        east.add(refreshBtn);
+        header.add(east, BorderLayout.EAST);
 
         return header;
+    }
+
+    private void applyFilter() {
+        tableModel.setRowCount(0);
+        for (Object[] row : allRows) {
+            String session = (String) row[COL_SESSION];
+            String remark  = (String) row[COL_REMARK];
+            boolean pass = ((Double) row[COL_AVERAGE]) >= 10.0;
+            switch (filterMode) {
+                case "ALL":    tableModel.addRow(row); break;
+                case "NORMAL": if (pass && session.contains("normale"))    tableModel.addRow(row); break;
+                case "RESIT":  if (pass && session.contains("rattrapage")) tableModel.addRow(row); break;
+                case "FAILED": if (!pass)                                  tableModel.addRow(row); break;
+            }
+        }
+        sortByAverage();
     }
 
     // ── Table ─────────────────────────────────────────────────────────────────
@@ -199,7 +234,7 @@ public class ResultsPanel extends JPanel {
     }
 
     private JLabel legendDot(Color color, String text) {
-        JLabel lbl = new JLabel("● " + text) {
+        JLabel lbl = new JLabel("* " + text) {
             @Override protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
             }
@@ -217,13 +252,14 @@ public class ResultsPanel extends JPanel {
      */
     public void refresh() {
         tableModel.setRowCount(0);
+        allRows.clear();
 
         List<Etudiant> students = etudiantDAO.getAllEtudiants();
 
         for (Etudiant etudiant : students) {
             ResultRow row = computeResultRow(etudiant);
             if (row == null) continue; // insufficient data — skip
-            tableModel.addRow(new Object[]{
+            allRows.add(new Object[]{
                 etudiant.getNom() + " " + etudiant.getPrenom(),
                 row.average,
                 row.session,
@@ -231,9 +267,10 @@ public class ResultsPanel extends JPanel {
             });
         }
 
+        filterMode = "ALL";
         // Default sort: descending average (best first)
         sortAsc = false;
-        sortByAverage();
+        applyFilter();
     }
 
     // ── Computation helpers ───────────────────────────────────────────────────
@@ -303,11 +340,11 @@ public class ResultsPanel extends JPanel {
         if (globalAvg >= 10.0) {
             session = usedResit ? "Session rattrapage" : "Session normale";
             remark  = usedResit
-                ? "✅ Admis (session rattrapage)"
-                : "✅ Admis (session normale)";
+                ? "[V] Admis (session rattrapage)"
+                : "[V] Admis (session normale)";
         } else {
             session = "—";
-            remark  = "❌ Ajourné";
+            remark  = "[X] Ajourne";
         }
 
         return new ResultRow(globalAvg, session, remark);

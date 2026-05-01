@@ -85,7 +85,7 @@ public class ModulePanel extends JPanel {
             BorderFactory.createLineBorder(MainFrame.BORDER_SUBTLE),
             BorderFactory.createEmptyBorder(32, 48, 32, 48)));
 
-        JLabel title = sectionTitle("📘  Gestion des Modules");
+        JLabel title = sectionTitle("[>] Gestion des Modules");
         title.setAlignmentX(CENTER_ALIGNMENT);
         card.add(title);
         card.add(Box.createVerticalStrut(8));
@@ -95,10 +95,10 @@ public class ModulePanel extends JPanel {
         card.add(Box.createVerticalStrut(32));
 
         String[][] actions = {
-            {"➕  Ajouter un module",   CARD_ADD},
-            {"🗑  Supprimer un module", CARD_REMOVE},
-            {"✏️  Modifier un module",  CARD_MODIFY},
-            {"📋  Afficher la liste",   CARD_LIST},
+            {"[+] Ajouter un module",   CARD_ADD},
+            {"[-] Supprimer un module", CARD_REMOVE},
+            {"[*] Modifier un module",  CARD_MODIFY},
+            {"[=] Afficher la liste",   CARD_LIST},
         };
 
         for (String[] a : actions) {
@@ -141,7 +141,7 @@ public class ModulePanel extends JPanel {
         gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel t1 = sectionTitle("➕  Ajouter un Module");
+        JLabel t1 = sectionTitle("[+] Ajouter un Module");
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.insets = new Insets(0,0,20,0);
         phase1.add(t1, gbc);
         gbc.gridwidth = 1; gbc.insets = new Insets(6,8,6,8);
@@ -167,7 +167,7 @@ public class ModulePanel extends JPanel {
         JPanel btns1 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         btns1.setOpaque(false);
         JButton cancel1 = makeSecondaryButton("Annuler");
-        JButton next1   = makePrimaryButton("Suivant — Assigner prof →");
+        JButton next1   = makePrimaryButton("Suivant : Assigner un prof →");
         JButton skip1   = makeSecondaryButton("Ignorer (pas de prof)");
         cancel1.addActionListener(e -> reset());
 
@@ -219,7 +219,7 @@ public class ModulePanel extends JPanel {
         // Phase 2: assign teacher
         JPanel phase2 = new JPanel(new BorderLayout(0, 12));
         phase2.setOpaque(false);
-        phase2.add(sectionTitle("➕  Ajouter — Assigner un Enseignant"), BorderLayout.NORTH);
+        phase2.add(sectionTitle("[+] Ajouter — Assigner un Enseignant"), BorderLayout.NORTH);
 
         SearchableDropdown<Enseignant>[] teachDropRef = new SearchableDropdown[1];
         teachDropRef[0] = new SearchableDropdown<>(
@@ -296,7 +296,7 @@ public class ModulePanel extends JPanel {
             BorderFactory.createEmptyBorder(28, 36, 28, 36)));
         card.setPreferredSize(new Dimension(520, 420));
 
-        card.add(sectionTitle("🗑  Supprimer un Module"), BorderLayout.NORTH);
+        card.add(sectionTitle("[-] Supprimer un Module"), BorderLayout.NORTH);
 
         removeDropdown = new SearchableDropdown<>(
             List.of(),
@@ -415,7 +415,7 @@ public class ModulePanel extends JPanel {
         // Phase A: select module
         JPanel selectCard = new JPanel(new BorderLayout(0, 16));
         selectCard.setOpaque(false);
-        selectCard.add(sectionTitle("✏️  Modifier — Sélectionner le Module"), BorderLayout.NORTH);
+        selectCard.add(sectionTitle("[*] Modifier — Selectionner le Module"), BorderLayout.NORTH);
 
         modifyDropdown = new SearchableDropdown<>(
             List.of(),
@@ -455,7 +455,7 @@ public class ModulePanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx=0; gbc.gridy=0; gbc.gridwidth=2; gbc.insets=new Insets(0,0,20,0);
-        formCard.add(sectionTitle("✏️  Modifier le Module"), gbc);
+        formCard.add(sectionTitle("[*] Modifier le Module"), gbc);
         gbc.gridwidth=1; gbc.insets=new Insets(6,8,6,8);
 
         modNomField   = styledField();
@@ -550,7 +550,7 @@ public class ModulePanel extends JPanel {
         wrapper.setBackground(MainFrame.BG_PANEL);
         wrapper.setBorder(BorderFactory.createEmptyBorder(24,32,24,32));
 
-        wrapper.add(sectionTitle("📋  Liste des Modules"), BorderLayout.NORTH);
+        wrapper.add(sectionTitle("[=] Liste des Modules"), BorderLayout.NORTH);
 
         String[] cols = {"ID", "Nom", "Coefficient", "Vol. Horaire (min)", "Enseignant"};
         listTableModel = new DefaultTableModel(cols, 0) {

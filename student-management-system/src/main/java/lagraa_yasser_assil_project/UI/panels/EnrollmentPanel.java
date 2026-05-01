@@ -97,13 +97,13 @@ public class EnrollmentPanel extends JPanel {
         JPanel p = new JPanel(new GridBagLayout());
         p.setBackground(MainFrame.BG_PANEL);
 
-        JLabel title = new JLabel("📝  Inscriptions");
+        JLabel title = new JLabel("[I] Inscriptions");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
 
-        JButton btnAdd    = makeActionButton("➕  Nouvelle inscription");
-        JButton btnRemove = makeActionButton("🗑️  Supprimer une inscription");
-        JButton btnList   = makeActionButton("📋  Afficher la liste");
+        JButton btnAdd    = makeActionButton("[+] Nouvelle inscription");
+        JButton btnRemove = makeActionButton("[-] Supprimer une inscription");
+        JButton btnList   = makeActionButton("[=] Afficher la liste");
 
         btnAdd.addActionListener(e -> showAdd());
         btnRemove.addActionListener(e -> showRemove());
@@ -142,7 +142,7 @@ public class EnrollmentPanel extends JPanel {
         // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
-        JLabel title = new JLabel("➕  Nouvelle inscription");
+        JLabel title = new JLabel("[+] Nouvelle inscription");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         JButton back = makeBackButton();
@@ -171,7 +171,7 @@ public class EnrollmentPanel extends JPanel {
             e -> e.getEmail());
         studentDropdown.setOnSelect(student -> {
             selectedStudent = student;
-            selectedStudentLabel.setText("✔  " + student.getNom() + " " + student.getPrenom());
+            selectedStudentLabel.setText("[OK] " + student.getNom() + " " + student.getPrenom());
             selectedStudentLabel.setForeground(MainFrame.SUCCESS_GREEN);
             refreshModuleDropdown();
             updateConfirmButton();
@@ -199,7 +199,7 @@ public class EnrollmentPanel extends JPanel {
         moduleDropdown.setOnSelect(module -> {
             selectedModule = module;
             String teacher = module.getEnseignant() != null ? module.getEnseignant().getNom() : "—";
-            selectedModuleLabel.setText("✔  " + module.getNomModule() + " — " + teacher);
+            selectedModuleLabel.setText("[OK] " + module.getNomModule() + " — " + teacher);
             selectedModuleLabel.setForeground(MainFrame.SUCCESS_GREEN);
             updateConfirmButton();
         });
@@ -215,7 +215,7 @@ public class EnrollmentPanel extends JPanel {
         outer.add(cols, BorderLayout.CENTER);
 
         // Confirm
-        confirmAddBtn = new JButton("✔  Confirmer l'inscription");
+        confirmAddBtn = new JButton("[OK] Confirmer l'inscription");
         confirmAddBtn.setFont(MainFrame.FONT_TITLE);
         confirmAddBtn.setBackground(new Color(0x1A, 0x5C, 0x3A));
         confirmAddBtn.setForeground(Color.WHITE);
@@ -293,7 +293,7 @@ public class EnrollmentPanel extends JPanel {
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
-        JLabel title = new JLabel("🗑️  Supprimer une inscription");
+        JLabel title = new JLabel("[-] Supprimer une inscription");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         JButton back = makeBackButton();
@@ -310,12 +310,12 @@ public class EnrollmentPanel extends JPanel {
         removeDropdown = new SearchableDropdown<>(
             List.of(),
             i -> i.getEtudiant().getNom() + " " + i.getEtudiant().getPrenom()
-               + "  →  " + i.getModule().getNomModule(),
+               + "  ->  " + i.getModule().getNomModule(),
             i -> String.valueOf(i.getIdInscription()));
         removeDropdown.setOnSelect(ins -> {
             selectedEnrollment = ins;
-            removeSelectedLabel.setText("✔  " + ins.getEtudiant().getNom() + " " + ins.getEtudiant().getPrenom()
-                + "  →  " + ins.getModule().getNomModule());
+            removeSelectedLabel.setText("[OK] " + ins.getEtudiant().getNom() + " " + ins.getEtudiant().getPrenom()
+                + "  ->  " + ins.getModule().getNomModule());
             removeSelectedLabel.setForeground(MainFrame.DANGER_RED);
             confirmRemoveBtn.setEnabled(true);
         });
@@ -324,7 +324,7 @@ public class EnrollmentPanel extends JPanel {
         removeSelectedLabel.setFont(MainFrame.FONT_LABEL);
         removeSelectedLabel.setForeground(MainFrame.TEXT_SECONDARY);
 
-        confirmRemoveBtn = new JButton("🗑️  Confirmer la suppression");
+        confirmRemoveBtn = new JButton("[-] Confirmer la suppression");
         confirmRemoveBtn.setFont(MainFrame.FONT_TITLE);
         confirmRemoveBtn.setBackground(new Color(0x7A, 0x1A, 0x1A));
         confirmRemoveBtn.setForeground(Color.WHITE);
@@ -394,7 +394,7 @@ public class EnrollmentPanel extends JPanel {
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
-        JLabel title = new JLabel("📋  Liste des inscriptions");
+        JLabel title = new JLabel("[=] Liste des inscriptions");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         JButton back = makeBackButton();

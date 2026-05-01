@@ -136,26 +136,44 @@ public class EtudiantDAO {
 
     // ------------------------------------------------------------------ DELETE
 
-    /**
-     * Removes a student by PK.
-     * Note: foreign-key constraints on INSCRIPTION / NOTE must be handled
-     * (cascade delete or manual cleanup) at the DB level.
-     * @return true if a row was deleted
-     */
-    public boolean deleteEtudiant(int id) {
-        String sql = "DELETE FROM ETUDIANT WHERE idEtudiant = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+/**
+ * Removes a student, their inscriptions, and all associated grades.
+ */
+public boolean deleteEtudiant(int id) {
+    String deleteNotes = "DELETE FROM NOTE WHERE idInscription IN "
+                       + "(SELECT idInscription FROM INSCRIPTION WHERE idEtudiant = ?)";
+    String deleteInsc  = "DELETE FROM INSCRIPTION WHERE idEtudiant = ?";
+    String deleteEt    = "DELETE FROM ETUDIANT WHERE idEtudiant = ?";
 
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-
+    try (Connection conn = DBConnection.getConnection()) {
+        conn.setAutoCommit(false);
+        try {
+            try (PreparedStatement ps = conn.prepareStatement(deleteNotes)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(deleteInsc)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(deleteEt)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+            conn.commit();
+            return true;
         } catch (SQLException ex) {
+            conn.rollback();
             ex.printStackTrace();
             return false;
+        } finally {
+            conn.setAutoCommit(true);
         }
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        return false;
     }
-
+}
     // ------------------------------------------------------------------ DIPLOMA
 
     /**

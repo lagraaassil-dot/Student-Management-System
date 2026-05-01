@@ -37,13 +37,13 @@ public class NavigationController {
 
     /** The section keys — must match the card names registered in ContentPanel. */
     public enum Section {
-        STUDENTS    ("👤  Étudiants"),
-        MODULES     ("📘  Modules"),
-        TEACHERS    ("👨‍🏫  Enseignants"),
-        ENROLLMENT  ("📝  Inscriptions"),
-        GRADES      ("📊  Notes"),
-        RESULTS     ("📈  Résultats"),
-        DIPLOMA     ("🎓  Diplôme");
+        STUDENTS    ("[E] Etudiants"),
+        MODULES     ("[M] Modules"),
+        TEACHERS    ("[P] Enseignants"),
+        ENROLLMENT  ("[I] Inscriptions"),
+        GRADES      ("[N] Notes"),
+        RESULTS     ("[R] Resultats"),
+        DIPLOMA     ("[D] Diplome");
 
         private final String label;
         Section(String label) { this.label = label; }

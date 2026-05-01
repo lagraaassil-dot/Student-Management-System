@@ -86,7 +86,7 @@ public class TeacherPanel extends JPanel {
             BorderFactory.createEmptyBorder(32, 48, 32, 48)
         ));
 
-        JLabel title = sectionTitle("👨‍🏫  Gestion des Enseignants");
+        JLabel title = sectionTitle("[>] Gestion des Enseignants");
         title.setAlignmentX(CENTER_ALIGNMENT);
         card.add(title);
         card.add(Box.createVerticalStrut(8));
@@ -96,11 +96,11 @@ public class TeacherPanel extends JPanel {
         card.add(Box.createVerticalStrut(32));
 
         Object[][] actions = {
-            {"➕  Ajouter un enseignant",   CARD_ADD,    false},
-            {"🗑  Supprimer un enseignant",  CARD_REMOVE, false},
-            {"✏️  Modifier un enseignant",   CARD_MODIFY, false},
-            {"📎  Assigner des modules",     CARD_ASSIGN, false},
-            {"📋  Afficher la liste",        CARD_LIST,   true},
+            {"[+] Ajouter un enseignant",   CARD_ADD,    false},
+            {"[-] Supprimer un enseignant",  CARD_REMOVE, false},
+            {"[*] Modifier un enseignant",   CARD_MODIFY, false},
+            {"[~] Assigner des modules",     CARD_ASSIGN, false},
+            {"[=] Afficher la liste",        CARD_LIST,   true},
         };
 
         for (Object[] a : actions) {
@@ -145,7 +145,7 @@ public class TeacherPanel extends JPanel {
         gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel title1 = sectionTitle("➕  Ajouter — Nom & Département");
+        JLabel title1 = sectionTitle("[+] Ajouter — Nom & Departement");
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.insets = new Insets(0, 0, 20, 0);
         phase1.add(title1, gbc);
         gbc.gridwidth = 1; gbc.insets = new Insets(6, 8, 6, 8);
@@ -191,6 +191,15 @@ public class TeacherPanel extends JPanel {
         JButton next1   = makePrimaryButton("Suivant →");
         cancel1.addActionListener(e -> reset());
 
+        // Declare specDropRef early so next1's listener can reference it
+        @SuppressWarnings("unchecked")
+        SearchableDropdown<Specialite>[] specDropRef = new SearchableDropdown[1];
+        specDropRef[0] = new SearchableDropdown<>(
+            List.of(),
+            Specialite::toString,
+            s -> s.name()
+        );
+
         final Departement[] chosenDept = {null};
 
         next1.addActionListener(e -> {
@@ -205,9 +214,14 @@ public class TeacherPanel extends JPanel {
             if (chosenDept[0] == null) {
                 errLbl1.setText("Sélectionnez un département."); return;
             }
-            // Populate phase 2
+            // Populate phase 2 — load specialties BEFORE switching card
             outer.putClientProperty("nom", nomField.getText().trim());
             outer.putClientProperty("dept", chosenDept[0]);
+            List<Specialite> specs = Arrays.stream(Specialite.values())
+                .filter(s -> s.getDepartement() == chosenDept[0])
+                .collect(Collectors.toList());
+            specDropRef[0].setItems(specs);
+            specDropRef[0].clearSelection();
             ((CardLayout)outer.getLayout()).show(outer, "PHASE2");
         });
         btns1.add(cancel1); btns1.add(next1);
@@ -217,14 +231,7 @@ public class TeacherPanel extends JPanel {
         // Phase 2: Specialty
         JPanel phase2 = new JPanel(new BorderLayout(0, 16));
         phase2.setOpaque(false);
-        phase2.add(sectionTitle("➕  Ajouter — Spécialité"), BorderLayout.NORTH);
-
-        SearchableDropdown<Specialite>[] specDropRef = new SearchableDropdown[1];
-        specDropRef[0] = new SearchableDropdown<>(
-            List.of(),
-            Specialite::toString,
-            s -> s.name()
-        );
+        phase2.add(sectionTitle("[+] Ajouter — Specialite"), BorderLayout.NORTH);
 
         phase2.add(specDropRef[0], BorderLayout.CENTER);
 
@@ -264,16 +271,7 @@ public class TeacherPanel extends JPanel {
         south2.add(btns2, BorderLayout.SOUTH);
         phase2.add(south2, BorderLayout.SOUTH);
 
-        // Wire phase1 → phase2 specialty reload
-        next1.addActionListener(e2 -> {
-            Departement d = (Departement) outer.getClientProperty("dept");
-            if (d != null) {
-                List<Specialite> specs = Arrays.stream(Specialite.values())
-                    .filter(s -> s.getDepartement() == d)
-                    .collect(Collectors.toList());
-                specDropRef[0].setItems(specs);
-            }
-        });
+        // specialty loading merged into next1's first listener above
 
         outer.add(phase1, "PHASE1");
         outer.add(phase2, "PHASE2");
@@ -299,7 +297,7 @@ public class TeacherPanel extends JPanel {
             BorderFactory.createEmptyBorder(28, 36, 28, 36)
         ));
         card.setPreferredSize(new Dimension(520, 420));
-        card.add(sectionTitle("🗑  Supprimer un Enseignant"), BorderLayout.NORTH);
+        card.add(sectionTitle("[-] Supprimer un Enseignant"), BorderLayout.NORTH);
 
         removeDropdown = new SearchableDropdown<>(
             List.of(),
@@ -379,7 +377,7 @@ public class TeacherPanel extends JPanel {
         // Phase A: select teacher
         JPanel selectPhase = new JPanel(new BorderLayout(0, 16));
         selectPhase.setOpaque(false);
-        selectPhase.add(sectionTitle("✏️  Modifier — Sélectionner"), BorderLayout.NORTH);
+        selectPhase.add(sectionTitle("[*] Modifier — Selectionner"), BorderLayout.NORTH);
 
         modifyDropdown = new SearchableDropdown<>(
             List.of(),
@@ -391,6 +389,23 @@ public class TeacherPanel extends JPanel {
 
         JPanel selBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         selBtns.setOpaque(false);
+        // Declare edit-form variables early so nextSel's listener can reference them
+        JTextField nomField = styledField();
+        ButtonGroup deptGroup = new ButtonGroup();
+        Map<JCheckBox, Departement> deptCBs = new LinkedHashMap<>();
+        for (Departement d : Departement.values()) {
+            JCheckBox cb = new JCheckBox(d.toString());
+            cb.setFont(MainFrame.FONT_BODY);
+            cb.setForeground(MainFrame.TEXT_PRIMARY);
+            cb.setOpaque(false);
+            cb.setFocusPainted(false);
+            deptGroup.add(cb);
+            deptCBs.put(cb, d);
+        }
+        @SuppressWarnings("unchecked")
+        SearchableDropdown<Specialite>[] editSpecRef = new SearchableDropdown[1];
+        editSpecRef[0] = new SearchableDropdown<>(List.of(), Specialite::toString, s -> s.name());
+
         JButton cancelSel = makeSecondaryButton("Annuler");
         JButton nextSel   = makePrimaryButton("Modifier →");
         cancelSel.addActionListener(e -> reset());
@@ -400,6 +415,15 @@ public class TeacherPanel extends JPanel {
                     "Aucune sélection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            // Pre-fill form BEFORE switching card
+            nomField.setText(selectedTeacher.getNom());
+            Departement curDept = selectedTeacher.getSpecialite().getDepartement();
+            deptCBs.forEach((cb, d) -> cb.setSelected(d == curDept));
+            List<Specialite> specs = Arrays.stream(Specialite.values())
+                .filter(s -> s.getDepartement() == curDept)
+                .collect(Collectors.toList());
+            editSpecRef[0].setItems(specs);
+            editSpecRef[0].setSelectedItem(selectedTeacher.getSpecialite());
             outer.putClientProperty("nom", selectedTeacher.getNom());
             ((CardLayout)outer.getLayout()).show(outer, "EDIT");
         });
@@ -414,10 +438,10 @@ public class TeacherPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.insets = new Insets(0, 0, 16, 0);
-        editPhase.add(sectionTitle("✏️  Modifier l'Enseignant"), gbc);
+        editPhase.add(sectionTitle("[*] Modifier l'Enseignant"), gbc);
         gbc.gridwidth = 1; gbc.insets = new Insets(6, 8, 6, 8);
 
-        JTextField nomField = styledField();
+        // nomField declared earlier (before nextSel listener)
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0;
         editPhase.add(fieldLabel("Nom *"), gbc);
         gbc.gridx = 1; gbc.weightx = 1;
@@ -428,19 +452,11 @@ public class TeacherPanel extends JPanel {
         editPhase.add(fieldLabel("Département"), gbc);
         gbc.insets = new Insets(4, 8, 4, 8);
 
-        ButtonGroup deptGroup = new ButtonGroup();
-        Map<JCheckBox, Departement> deptCBs = new LinkedHashMap<>();
+        // deptCBs declared earlier; just rebuild the panel widget here
         JPanel deptPanel = new JPanel(new GridLayout(0, 2, 6, 4));
         deptPanel.setOpaque(false);
-        for (Departement d : Departement.values()) {
-            JCheckBox cb = new JCheckBox(d.toString());
-            cb.setFont(MainFrame.FONT_BODY);
-            cb.setForeground(MainFrame.TEXT_PRIMARY);
-            cb.setOpaque(false);
-            cb.setFocusPainted(false);
-            deptGroup.add(cb);
-            deptCBs.put(cb, d);
-            deptPanel.add(cb);
+        for (Map.Entry<JCheckBox, Departement> ent : deptCBs.entrySet()) {
+            deptPanel.add(ent.getKey());
         }
         gbc.gridy = 3;
         editPhase.add(deptPanel, gbc);
@@ -449,8 +465,7 @@ public class TeacherPanel extends JPanel {
         editPhase.add(fieldLabel("Spécialité"), gbc);
         gbc.insets = new Insets(4, 8, 4, 8);
 
-        SearchableDropdown<Specialite>[] editSpecRef = new SearchableDropdown[1];
-        editSpecRef[0] = new SearchableDropdown<>(List.of(), Specialite::toString, s -> s.name());
+        // editSpecRef declared earlier (before nextSel listener)
         gbc.gridy = 5;
         editPhase.add(editSpecRef[0], gbc);
 
@@ -475,18 +490,7 @@ public class TeacherPanel extends JPanel {
         JButton backBtn = makeSecondaryButton("← Retour");
         JButton saveBtn = makePrimaryButton("Enregistrer");
 
-        // Pre-fill when switching to EDIT phase
-        nextSel.addActionListener(ev -> {
-            if (selectedTeacher == null) return;
-            nomField.setText(selectedTeacher.getNom());
-            // Check the right dept
-            Departement curDept = selectedTeacher.getSpecialite().getDepartement();
-            deptCBs.forEach((cb, d) -> cb.setSelected(d == curDept));
-            List<Specialite> specs = Arrays.stream(Specialite.values())
-                .filter(s -> s.getDepartement() == curDept)
-                .collect(Collectors.toList());
-            editSpecRef[0].setItems(specs);
-        });
+        // pre-fill merged into nextSel's first listener above
 
         backBtn.addActionListener(e -> ((CardLayout)outer.getLayout()).show(outer, "SELECT"));
         saveBtn.addActionListener(e -> {
@@ -541,7 +545,7 @@ public class TeacherPanel extends JPanel {
         // Phase A: select teacher
         JPanel selPhase = new JPanel(new BorderLayout(0, 16));
         selPhase.setOpaque(false);
-        selPhase.add(sectionTitle("📎  Assigner Modules — Enseignant"), BorderLayout.NORTH);
+        selPhase.add(sectionTitle("[~] Assigner Modules — Enseignant"), BorderLayout.NORTH);
 
         assignTeacherDropdown = new SearchableDropdown<>(
             List.of(),
@@ -576,7 +580,7 @@ public class TeacherPanel extends JPanel {
         // Phase B: pick modules (multi-select)
         JPanel modPhase = new JPanel(new BorderLayout(0, 16));
         modPhase.setOpaque(false);
-        modPhase.add(sectionTitle("📎  Modules sans enseignant"), BorderLayout.NORTH);
+        modPhase.add(sectionTitle("[~] Modules sans enseignant"), BorderLayout.NORTH);
 
         assignModuleDropdown = new SearchableDropdown<>(
             List.of(),
@@ -601,10 +605,27 @@ public class TeacherPanel extends JPanel {
 
         backM.addActionListener(e -> ((CardLayout)outer.getLayout()).show(outer, "SELECT"));
         confirmM.addActionListener(e -> {
+            if (selectedTeacher == null) {
+                JOptionPane.showMessageDialog(this, "Aucun enseignant sélectionné.",
+                    "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             List<ModuleEtude> chosen = assignModuleDropdown.getSelectedItems();
             if (chosen.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Sélectionnez au moins un module.",
                     "Aucun module", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            // Guard: check that none of the chosen modules already has a teacher
+            List<String> alreadyAssigned = chosen.stream()
+                .filter(m -> m.getEnseignant() != null)
+                .map(m -> m.getNomModule() + " (déjà assigné à " + m.getEnseignant().getNom() + ")")
+                .collect(java.util.stream.Collectors.toList());
+            if (!alreadyAssigned.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "Les modules suivants ont déjà un enseignant assigné :\n"
+                    + String.join("\n", alreadyAssigned),
+                    "Assignation impossible", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             for (ModuleEtude m : chosen) {
@@ -637,7 +658,7 @@ public class TeacherPanel extends JPanel {
         JPanel wrapper = new JPanel(new BorderLayout(0, 0));
         wrapper.setBackground(MainFrame.BG_PANEL);
         wrapper.setBorder(BorderFactory.createEmptyBorder(24, 32, 24, 32));
-        wrapper.add(sectionTitle("📋  Liste des Enseignants"), BorderLayout.NORTH);
+        wrapper.add(sectionTitle("[=] Liste des Enseignants"), BorderLayout.NORTH);
 
         String[] cols = {"ID", "Nom", "Spécialité", "Département"};
         listTableModel = new DefaultTableModel(cols, 0) {

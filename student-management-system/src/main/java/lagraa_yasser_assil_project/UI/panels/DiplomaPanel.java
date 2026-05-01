@@ -65,7 +65,7 @@ public class DiplomaPanel extends JPanel {
         titleBlock.setLayout(new BoxLayout(titleBlock, BoxLayout.Y_AXIS));
         titleBlock.setBackground(MainFrame.BG_PANEL);
 
-        JLabel title = new JLabel("🎓  Diplôme");
+        JLabel title = new JLabel("[*] Diplome");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         titleBlock.add(title);
@@ -78,7 +78,7 @@ public class DiplomaPanel extends JPanel {
         header.add(titleBlock, BorderLayout.WEST);
 
         // Right: refresh button
-        JButton refreshBtn = styledButton("↻  Actualiser");
+        JButton refreshBtn = styledButton("[~] Actualiser");
         refreshBtn.addActionListener(e -> refresh());
         header.add(refreshBtn, BorderLayout.EAST);
 
@@ -161,7 +161,7 @@ public class DiplomaPanel extends JPanel {
                 setForeground(sel ? MainFrame.TEXT_PRIMARY : MainFrame.ACCENT_GOLD);
                 setFont(MainFrame.FONT_LABEL);
                 if (value instanceof String s) {
-                    setText("🎓  " + s);
+                    setText("[*] " + s);
                 }
                 return this;
             }
@@ -220,7 +220,7 @@ public class DiplomaPanel extends JPanel {
             countLabel.setText("Aucun étudiant diplômé pour le moment.");
             countLabel.setForeground(MainFrame.TEXT_SECONDARY);
         } else {
-            countLabel.setText("Total : " + count + " étudiant" + (count > 1 ? "s" : "") + " diplômé" + (count > 1 ? "s" : "") + "  🎓");
+            countLabel.setText("Total : " + count + " étudiant" + (count > 1 ? "s" : "") + " diplômé" + (count > 1 ? "s" : "") + "  ");
             countLabel.setForeground(MainFrame.ACCENT_GOLD);
         }
     }

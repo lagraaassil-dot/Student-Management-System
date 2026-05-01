@@ -99,7 +99,7 @@ public class StudentPanel extends JPanel {
             BorderFactory.createEmptyBorder(32, 48, 32, 48)
         ));
 
-        JLabel title = new JLabel("👤  Gestion des Étudiants");
+        JLabel title = new JLabel("[>] Gestion des Étudiants");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -114,17 +114,19 @@ public class StudentPanel extends JPanel {
         card.add(Box.createVerticalStrut(32));
 
         String[][] actions = {
-            {"➕  Ajouter un étudiant",     CARD_ADD},
-            {"🗑  Supprimer un étudiant",   CARD_REMOVE},
-            {"✏️  Modifier un étudiant",    CARD_MODIFY},
-            {"📋  Afficher la liste",       CARD_LIST},
+            {"[+] Ajouter un étudiant",     CARD_ADD},
+            {"[-] Supprimer un étudiant",   CARD_REMOVE},
+            {"[*] Modifier un étudiant",    CARD_MODIFY},
+            {"[=] Afficher la liste",       CARD_LIST},
         };
 
         for (String[] a : actions) {
             JButton btn = makeActionButton(a[0]);
             btn.addActionListener(e -> {
                 markDirty();
-                if (CARD_LIST.equals(a[1])) refreshListPanel();
+                if (CARD_LIST.equals(a[1]))   refreshListPanel();
+                if (CARD_REMOVE.equals(a[1])) refreshRemoveDropdown();
+                if (CARD_MODIFY.equals(a[1])) refreshModifyDropdown();
                 cardLayout.show(this, a[1]);
             });
             card.add(btn);
@@ -155,7 +157,7 @@ public class StudentPanel extends JPanel {
         gbc.fill   = GridBagConstraints.HORIZONTAL;
 
         // Title
-        JLabel title = sectionTitle("➕  Ajouter un Étudiant");
+        JLabel title = sectionTitle("[+] Ajouter un Étudiant");
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.insets = new Insets(0, 0, 20, 0);
         form.add(title, gbc);
         gbc.gridwidth = 1; gbc.insets = new Insets(6, 8, 6, 8);
@@ -258,7 +260,7 @@ public class StudentPanel extends JPanel {
         ));
         card.setPreferredSize(new Dimension(520, 420));
 
-        card.add(sectionTitle("🗑  Supprimer un Étudiant"), BorderLayout.NORTH);
+        card.add(sectionTitle("[-] Supprimer un Étudiant"), BorderLayout.NORTH);
 
         removeDropdown = new SearchableDropdown<>(
             List.of(),
@@ -348,7 +350,7 @@ public class StudentPanel extends JPanel {
         // Phase A: select student
         JPanel selectCard = new JPanel(new BorderLayout(0, 16));
         selectCard.setOpaque(false);
-        selectCard.add(sectionTitle("✏️  Modifier — Sélectionner l'étudiant"), BorderLayout.NORTH);
+        selectCard.add(sectionTitle("[*] Modifier — Sélectionner l'étudiant"), BorderLayout.NORTH);
 
         modifyDropdown = new SearchableDropdown<>(
             List.of(),
@@ -390,7 +392,7 @@ public class StudentPanel extends JPanel {
         gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill   = GridBagConstraints.HORIZONTAL;
 
-        JLabel formTitle = sectionTitle("✏️  Modifier l'Étudiant");
+        JLabel formTitle = sectionTitle("[*] Modifier l'Étudiant");
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2; gbc.insets = new Insets(0, 0, 20, 0);
         modifyFormCard.add(formTitle, gbc);
         gbc.gridwidth = 1; gbc.insets = new Insets(6, 8, 6, 8);
@@ -475,7 +477,7 @@ public class StudentPanel extends JPanel {
         wrapper.setBackground(MainFrame.BG_PANEL);
         wrapper.setBorder(BorderFactory.createEmptyBorder(24, 32, 24, 32));
 
-        JLabel title = sectionTitle("📋  Liste des Étudiants");
+        JLabel title = sectionTitle("[=] Liste des Étudiants");
         wrapper.add(title, BorderLayout.NORTH);
 
         String[] cols = {"ID", "Nom", "Prénom", "Date Naissance", "Email", "Diplômé"};

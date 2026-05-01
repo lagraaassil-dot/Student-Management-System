@@ -145,19 +145,35 @@ public class InscriptionDAO {
     /**
      * Removes an enrollment (and consequently all notes cascade-deleted at DB).
      */
-    public boolean deleteEnrolment(int inscriptionId) {
-        String sql = "DELETE FROM INSCRIPTION WHERE idInscription = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+ public boolean deleteEnrolment(int inscriptionId) {
+    String deleteNotes = "DELETE FROM NOTE WHERE idInscription = ?";
+    String deleteInsc  = "DELETE FROM INSCRIPTION WHERE idInscription = ?";
 
-            ps.setInt(1, inscriptionId);
-            return ps.executeUpdate() > 0;
-
+    try (Connection conn = DBConnection.getConnection()) {
+        conn.setAutoCommit(false);
+        try {
+            try (PreparedStatement ps = conn.prepareStatement(deleteNotes)) {
+                ps.setInt(1, inscriptionId);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(deleteInsc)) {
+                ps.setInt(1, inscriptionId);
+                ps.executeUpdate();
+            }
+            conn.commit();
+            return true;
         } catch (SQLException ex) {
+            conn.rollback();
             ex.printStackTrace();
             return false;
+        } finally {
+            conn.setAutoCommit(true);
         }
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        return false;
     }
+}
 
     // ------------------------------------------------------------------ AVERAGE & VALIDATION
 

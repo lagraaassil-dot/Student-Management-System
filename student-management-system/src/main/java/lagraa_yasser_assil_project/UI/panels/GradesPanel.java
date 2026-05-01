@@ -106,14 +106,14 @@ public class GradesPanel extends JPanel {
         JPanel p = new JPanel(new GridBagLayout());
         p.setBackground(MainFrame.BG_PANEL);
 
-        JLabel title = new JLabel("📊  Notes");
+        JLabel title = new JLabel("[#] Notes");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
 
-        JButton btnAdd    = makeActionButton("➕  Ajouter une note");
-        JButton btnMod    = makeActionButton("✏️  Modifier une note");
-        JButton btnDel    = makeActionButton("🗑️  Supprimer une note");
-        JButton btnList   = makeActionButton("📋  Afficher toutes les notes");
+        JButton btnAdd    = makeActionButton("[+] Ajouter une note");
+        JButton btnMod    = makeActionButton("[*] Modifier une note");
+        JButton btnDel    = makeActionButton("[-] Supprimer une note");
+        JButton btnList   = makeActionButton("[=] Afficher toutes les notes");
 
         btnAdd.addActionListener(e  -> showAdd());
         btnMod.addActionListener(e  -> showModify());
@@ -163,7 +163,7 @@ public class GradesPanel extends JPanel {
         // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
-        JLabel title = new JLabel("➕  Ajouter une note");
+        JLabel title = new JLabel("[+] Ajouter une note");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         JButton back = makeBackButton();
@@ -209,7 +209,7 @@ public class GradesPanel extends JPanel {
         addEnrollmentDropdown.setOnSelect(ins -> {
             addSelectedEnrollment = ins;
             addNoteType = determineNextNoteType(ins);
-            addEnrollmentLabel.setText("✔  " + enrollmentDisplay(ins));
+            addEnrollmentLabel.setText("[OK] " + enrollmentDisplay(ins));
             addEnrollmentLabel.setForeground(MainFrame.SUCCESS_GREEN);
             String typeStr = addNoteType == 0 ? "CC (Contrôle Continu)"
                            : addNoteType == 1 ? "Examen (session normale)"
@@ -232,7 +232,7 @@ public class GradesPanel extends JPanel {
         center.add(addGradeField);
         outer.add(center, BorderLayout.CENTER);
 
-        confirmAddBtn = new JButton("✔  Enregistrer la note");
+        confirmAddBtn = new JButton("[OK] Enregistrer la note");
         confirmAddBtn.setFont(MainFrame.FONT_TITLE);
         confirmAddBtn.setBackground(new Color(0x1A, 0x5C, 0x3A));
         confirmAddBtn.setForeground(Color.WHITE);
@@ -306,7 +306,7 @@ public class GradesPanel extends JPanel {
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
-        JLabel title = new JLabel("✏️  Modifier une note");
+        JLabel title = new JLabel("[*] Modifier une note");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         JButton back = makeBackButton();
@@ -341,7 +341,7 @@ public class GradesPanel extends JPanel {
 
         modEnrollmentDropdown.setOnSelect(ins -> {
             modSelectedEnrollment = ins;
-            modEnrollmentLabel.setText("✔  " + enrollmentDisplay(ins));
+            modEnrollmentLabel.setText("[OK] " + enrollmentDisplay(ins));
             modEnrollmentLabel.setForeground(MainFrame.SUCCESS_GREEN);
             buildModNoteFields(ins);
             confirmModBtn.setEnabled(true);
@@ -356,7 +356,7 @@ public class GradesPanel extends JPanel {
         center.add(modNotesPanel);
         outer.add(center, BorderLayout.CENTER);
 
-        confirmModBtn = new JButton("✔  Enregistrer les modifications");
+        confirmModBtn = new JButton("[OK] Enregistrer les modifications");
         confirmModBtn.setFont(MainFrame.FONT_TITLE);
         confirmModBtn.setBackground(new Color(0x1A, 0x3A, 0x5C));
         confirmModBtn.setForeground(Color.WHITE);
@@ -449,7 +449,7 @@ public class GradesPanel extends JPanel {
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
-        JLabel title = new JLabel("🗑️  Supprimer une note");
+        JLabel title = new JLabel("[-] Supprimer une note");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         JButton back = makeBackButton();
@@ -489,16 +489,25 @@ public class GradesPanel extends JPanel {
         delTypeCombo.setMaximumSize(new Dimension(300, 36));
         delTypeCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel infoLabel = new JLabel("ℹ  La suppression d'une note de type inférieur entraîne aussi la suppression des notes de type supérieur.");
+        JLabel infoLabel = new JLabel("[i] La suppression d'une note de type inférieur entraîne aussi la suppression des notes de type supérieur.");
         infoLabel.setFont(new Font("SansSerif", Font.ITALIC, 11));
         infoLabel.setForeground(MainFrame.TEXT_SECONDARY);
         infoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         delEnrollmentDropdown.setOnSelect(ins -> {
             delSelectedEnrollment = ins;
-            delEnrollmentLabel.setText("✔  " + enrollmentDisplay(ins));
+            delEnrollmentLabel.setText("[OK] " + enrollmentDisplay(ins));
             delEnrollmentLabel.setForeground(MainFrame.DANGER_RED);
-            confirmDelBtn.setEnabled(true);
+            // Rebuild type combo to show only note types that actually exist
+            java.util.List<Note> existingNotes = noteDAO.getNotesByInscription(ins.getIdInscription());
+            boolean hasCC   = existingNotes.stream().anyMatch(n -> n.getTypeNote() == 0);
+            boolean hasExam = existingNotes.stream().anyMatch(n -> n.getTypeNote() == 1);
+            boolean hasResit= existingNotes.stream().anyMatch(n -> n.getTypeNote() == 2);
+            delTypeCombo.removeAllItems();
+            if (hasResit) delTypeCombo.addItem("Rattrapage (type 2)");
+            if (hasExam)  delTypeCombo.addItem("Examen (type 1)");
+            if (hasCC)    delTypeCombo.addItem("CC (type 0)");
+            confirmDelBtn.setEnabled(!existingNotes.isEmpty());
         });
 
         center.add(ddLabel);
@@ -514,7 +523,7 @@ public class GradesPanel extends JPanel {
         center.add(infoLabel);
         outer.add(center, BorderLayout.CENTER);
 
-        confirmDelBtn = new JButton("🗑️  Confirmer la suppression");
+        confirmDelBtn = new JButton("[-] Confirmer la suppression");
         confirmDelBtn.setFont(MainFrame.FONT_TITLE);
         confirmDelBtn.setBackground(new Color(0x7A, 0x1A, 0x1A));
         confirmDelBtn.setForeground(Color.WHITE);
@@ -549,8 +558,9 @@ public class GradesPanel extends JPanel {
         if (delSelectedEnrollment == null) return;
         int insId = delSelectedEnrollment.getIdInscription();
         // Determine chosen type (0=rattrapage first option, 1=exam, 2=CC)
-        int selIdx = delTypeCombo.getSelectedIndex(); // 0=type2, 1=type1, 2=type0
-        int targetType = (selIdx == 0) ? 2 : (selIdx == 1) ? 1 : 0;
+        String selItem = (String) delTypeCombo.getSelectedItem();
+        if (selItem == null) return;
+        int targetType = selItem.contains("type 2") ? 2 : selItem.contains("type 1") ? 1 : 0;
 
         List<Note> existingNotes = noteDAO.getNotesByInscription(insId);
         List<Integer> typesPresent = existingNotes.stream().map(Note::getTypeNote).collect(Collectors.toList());
@@ -605,7 +615,7 @@ public class GradesPanel extends JPanel {
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(MainFrame.BG_PANEL);
-        JLabel title = new JLabel("📋  Toutes les notes");
+        JLabel title = new JLabel("[=] Toutes les notes");
         title.setFont(MainFrame.FONT_DISPLAY);
         title.setForeground(MainFrame.ACCENT_GOLD);
         JButton back = makeBackButton();
@@ -666,7 +676,7 @@ public class GradesPanel extends JPanel {
         scroll.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 0));
         outer.add(scroll, BorderLayout.CENTER);
 
-        JLabel hint = new JLabel("  ▲▼ Cliquez sur l'en-tête « Note » pour trier");
+        JLabel hint = new JLabel("  ^v Cliquez sur l'en-tête « Note » pour trier");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hint.setForeground(MainFrame.TEXT_SECONDARY);
         outer.add(hint, BorderLayout.SOUTH);
